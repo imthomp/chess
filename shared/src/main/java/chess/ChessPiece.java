@@ -53,6 +53,29 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ArrayList<>();
+        ArrayList<ChessMove> moves = new ArrayList<ChessMove>();
+        if (type == PieceType.KING) {
+            for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
+                for (int colOffset = -1; colOffset <= 1; colOffset++) {
+                    if (rowOffset != 0 || colOffset != 0) {
+                        ChessPosition destination = new ChessPosition(myPosition.getRow() + rowOffset, myPosition.getColumn() + colOffset);
+                        moves.add(new ChessMove(myPosition, destination, null));
+                        // Check if the destination is valid
+                        // Check if the destination is not occupied by a friendly piece
+                    }
+                }
+            }
+        } else if (type == PieceType.QUEEN) {
+            throw new RuntimeException("Not implemented");
+        } else if (type == PieceType.BISHOP) {
+            throw new RuntimeException("Not implemented");
+        } else if (type == PieceType.KNIGHT) {
+            throw new RuntimeException("Not implemented");
+        } else if (type == PieceType.ROOK) {
+            throw new RuntimeException("Not implemented");
+        } else if (type == PieceType.PAWN) {
+            throw new RuntimeException("Not implemented");
+        }
+        return moves;
     }
 }
