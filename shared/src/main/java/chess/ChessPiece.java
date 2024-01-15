@@ -82,7 +82,21 @@ public class ChessPiece {
             // Bishop can move diagonally any number of squares
             getBishopMoves(board, myPosition, moves);
         } else if (type == PieceType.KNIGHT) {
-            throw new RuntimeException("Not implemented");
+            // Knight moves in an L-shape: two squares in one direction and one square perpendicular to that direction
+            int[] rowOffsets = {-2, -2, -1, -1, 1, 1, 2, 2};
+            int[] colOffsets = {-1, 1, -2, 2, -2, 2, -1, 1};
+
+            for (int i = 0; i < rowOffsets.length; i++) {
+                int rowOffset = rowOffsets[i];
+                int colOffset = colOffsets[i];
+
+                ChessPosition destination = new ChessPosition(myPosition.getRow() + rowOffset, myPosition.getColumn() + colOffset);
+
+                // Check if the destination is valid and not occupied by a friendly piece
+                if (board.isValidPosition(destination) && (board.getPiece(destination) == null || board.getPiece(destination).getTeamColor() != getTeamColor())) {
+                    moves.add(new ChessMove(myPosition, destination, null));
+                }
+            }
         } else if (type == PieceType.ROOK) {
             // Rook can move vertically or horizontally any number of squares
             getRookMoves(board, myPosition, moves);
