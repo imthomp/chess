@@ -67,6 +67,15 @@ public class ChessGame {
         throw new RuntimeException("Not implemented");
     }
 
+    private void switchTeamTurn() {
+        if (getTeamTurn() == TeamColor.WHITE) {
+            setTeamTurn(TeamColor.BLACK);
+        }
+        else {
+            setTeamTurn(TeamColor.WHITE);
+        }
+    }
+
     /**
      * Determines if the given team is in check
      *
