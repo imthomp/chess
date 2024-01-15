@@ -42,4 +42,21 @@ public class ChessMove {
     public ChessPiece.PieceType getPromotionPiece() {
         return promotionPiece;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("Move: ");
+        stringBuilder.append(startPosition);
+        stringBuilder.append(" to ");
+        stringBuilder.append(endPosition);
+
+        if (promotionPiece != null) {
+            stringBuilder.append(" with promotion to ");
+            stringBuilder.append(promotionPiece);
+        }
+
+        return stringBuilder.toString();
+    }
 }
