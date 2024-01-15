@@ -60,17 +60,7 @@ public class ChessPiece {
             int[] rowOffsets = {-1, -1, -1, 0, 0, 1, 1, 1};
             int[] colOffsets = {-1, 0, 1, -1, 1, -1, 0, 1};
 
-            for (int i = 0; i < rowOffsets.length; i++) {
-                int rowOffset = rowOffsets[i];
-                int colOffset = colOffsets[i];
-
-                ChessPosition destination = new ChessPosition(myPosition.getRow() + rowOffset, myPosition.getColumn() + colOffset);
-
-                // Check if the destination is valid and not occupied by a friendly piece
-                if (board.isValidPosition(destination) && (board.getPiece(destination) == null || board.getPiece(destination).getTeamColor() != getTeamColor())) {
-                    moves.add(new ChessMove(myPosition, destination, null));
-                }
-            }
+            getPieceMoves(board, myPosition, moves, rowOffsets, colOffsets);
         } else if (type == PieceType.QUEEN) {
             // Queen can move vertically, horizontally, and diagonally any number of squares
             // Combine the logic of rook and bishop
@@ -86,17 +76,7 @@ public class ChessPiece {
             int[] rowOffsets = {-2, -2, -1, -1, 1, 1, 2, 2};
             int[] colOffsets = {-1, 1, -2, 2, -2, 2, -1, 1};
 
-            for (int i = 0; i < rowOffsets.length; i++) {
-                int rowOffset = rowOffsets[i];
-                int colOffset = colOffsets[i];
-
-                ChessPosition destination = new ChessPosition(myPosition.getRow() + rowOffset, myPosition.getColumn() + colOffset);
-
-                // Check if the destination is valid and not occupied by a friendly piece
-                if (board.isValidPosition(destination) && (board.getPiece(destination) == null || board.getPiece(destination).getTeamColor() != getTeamColor())) {
-                    moves.add(new ChessMove(myPosition, destination, null));
-                }
-            }
+            getPieceMoves(board, myPosition, moves, rowOffsets, colOffsets);
         } else if (type == PieceType.ROOK) {
             // Rook can move vertically or horizontally any number of squares
             getRookMoves(board, myPosition, moves);
@@ -104,6 +84,20 @@ public class ChessPiece {
             throw new RuntimeException("Not implemented");
         }
         return moves;
+    }
+
+    private void getPieceMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, int[] rowOffsets, int[] colOffsets) {
+        for (int i = 0; i < rowOffsets.length; i++) {
+            int rowOffset = rowOffsets[i];
+            int colOffset = colOffsets[i];
+
+            ChessPosition destination = new ChessPosition(myPosition.getRow() + rowOffset, myPosition.getColumn() + colOffset);
+
+            // Check if the destination is valid and not occupied by a friendly piece
+            if (board.isValidPosition(destination) && (board.getPiece(destination) == null || board.getPiece(destination).getTeamColor() != getTeamColor())) {
+                moves.add(new ChessMove(myPosition, destination, null));
+            }
+        }
     }
 
     private void getBishopMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
