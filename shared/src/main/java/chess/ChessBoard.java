@@ -41,15 +41,4 @@ private ChessPiece[][] squares = new ChessPiece[BOARD_SIZE][BOARD_SIZE];
     public void resetBoard() {
         throw new RuntimeException("Not implemented");
     }
-
-    public boolean isValidPosition(ChessPosition position) {
-        int row = position.getRow();
-        int col = position.getColumn();
-        return row >= 0 && row < BOARD_SIZE && col >= 0 && col < BOARD_SIZE;
-    }
-
-    public boolean isOccupiedByTeam(ChessPosition position, ChessGame.TeamColor teamColor) {
-        ChessPiece piece = getPiece(position);
-        return piece != null && piece.getTeamColor() == teamColor;
-    }
 }

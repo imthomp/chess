@@ -1,8 +1,8 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Objects;
 
 /**
  * Represents a single chess piece
@@ -46,6 +46,19 @@ public class ChessPiece {
         return type;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
+
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -56,29 +69,15 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> moves = new HashSet<>();
         if (type == PieceType.KING) {
-            // King can move one square in any direction
-            int[] rowOffsets = {-1, -1, -1, 0, 0, 1, 1, 1};
-            int[] colOffsets = {-1, 0, 1, -1, 1, -1, 0, 1};
-
-            getPieceMoves(board, myPosition, moves, rowOffsets, colOffsets);
+            throw new RuntimeException("Not implemented");
         } else if (type == PieceType.QUEEN) {
-            // Queen can move vertically, horizontally, and diagonally any number of squares
-            // Combine the logic of rook and bishop
-            // Rook-like movement
-            getRookMoves(board, myPosition, moves);
-            // Bishop-like movement
             getBishopMoves(board, myPosition, moves);
+            getRookMoves(board, myPosition, moves);
         } else if (type == PieceType.BISHOP) {
-            // Bishop can move diagonally any number of squares
             getBishopMoves(board, myPosition, moves);
         } else if (type == PieceType.KNIGHT) {
-            // Knight moves in an L-shape: two squares in one direction and one square perpendicular to that direction
-            int[] rowOffsets = {-2, -2, -1, -1, 1, 1, 2, 2};
-            int[] colOffsets = {-1, 1, -2, 2, -2, 2, -1, 1};
-
-            getPieceMoves(board, myPosition, moves, rowOffsets, colOffsets);
+            throw new RuntimeException("Not implemented");
         } else if (type == PieceType.ROOK) {
-            // Rook can move vertically or horizontally any number of squares
             getRookMoves(board, myPosition, moves);
         } else if (type == PieceType.PAWN) {
             throw new RuntimeException("Not implemented");
@@ -86,24 +85,21 @@ public class ChessPiece {
         return moves;
     }
 
-    private void getPieceMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, int[] rowOffsets, int[] colOffsets) {
-        for (int i = 0; i < rowOffsets.length; i++) {
-            int rowOffset = rowOffsets[i];
-            int colOffset = colOffsets[i];
-
-            ChessPosition destination = new ChessPosition(myPosition.getRow() + rowOffset, myPosition.getColumn() + colOffset);
-
-            // Check if the destination is valid and not occupied by a friendly piece
-            if (board.isValidPosition(destination) && (board.getPiece(destination) == null || board.getPiece(destination).getTeamColor() != getTeamColor())) {
-                moves.add(new ChessMove(myPosition, destination, null));
-            }
-        }
-    }
-
     private void getBishopMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
         int[] rowOffsets = {-1, -1, 1, 1};
         int[] colOffsets = {-1, 1, -1, 1};
 
+        getFarMovingPieceMoves(board, myPosition, moves, rowOffsets, colOffsets);
+    }
+
+    private void getRookMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
+        int[] rowOffsets = {-1, 0, 0, 1};
+        int[] colOffsets = {0, -1, 1, 0};
+
+        getFarMovingPieceMoves(board, myPosition, moves, rowOffsets, colOffsets);
+    }
+
+    private void getFarMovingPieceMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, int[] rowOffsets, int[] colOffsets) {
         for (int i = 0; i < rowOffsets.length; i++) {
             int rowOffset = rowOffsets[i];
             int colOffset = colOffsets[i];
@@ -113,36 +109,15 @@ public class ChessPiece {
         }
     }
 
-    private void getRookMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
-        for (int rowOffset = -1; rowOffset <= 1; rowOffset++) {
-            if (rowOffset != 0) {
-                ChessPosition destination = new ChessPosition(myPosition.getRow() + rowOffset, myPosition.getColumn());
-                addMovesUntilBlocked(board, myPosition, destination, moves);
-            }
-        }
-        for (int colOffset = -1; colOffset <= 1; colOffset++) {
-            if (colOffset != 0) {
-                ChessPosition destination = new ChessPosition(myPosition.getRow(), myPosition.getColumn() + colOffset);
-                addMovesUntilBlocked(board, myPosition, destination, moves);
-            }
+    private void addMovesUntilBlocked(ChessBoard board, ChessPosition myPosition, ChessPosition destination, HashSet<ChessMove> moves) {
+        // Check if the destination is valid and not occupied by a friendly piece
+        while (isValidPosition(destination) && (board.getPiece(destination) == null || board.getPiece(destination).getTeamColor() != getTeamColor())) {
+            moves.add(new ChessMove(myPosition, destination, null));
+            destination = new ChessPosition(destination.getRow() + (destination.getRow() - myPosition.getRow()), destination.getColumn() + (destination.getColumn() - myPosition.getColumn()));
         }
     }
 
-    private void addMovesUntilBlocked(ChessBoard board, ChessPosition myPosition, ChessPosition destination, HashSet<ChessMove> moves) {
-        while (board.isValidPosition(destination)) {
-            ChessPiece pieceAtDestination = board.getPiece(destination);
-
-            if (pieceAtDestination == null) {
-                moves.add(new ChessMove(myPosition, destination, null));
-            } else if (pieceAtDestination.getTeamColor() != getTeamColor()) {
-                moves.add(new ChessMove(myPosition, destination, null));
-                break;  // Capture opponent's piece, then stop the movement
-            } else {
-                break;  // Friendly piece blocking the path
-            }
-
-            destination = new ChessPosition(destination.getRow() + Integer.signum(myPosition.getRow() - destination.getRow()),
-                    destination.getColumn() + Integer.signum(myPosition.getColumn() - destination.getColumn()));
-        }
+    public boolean isValidPosition(ChessPosition position) {
+        return position.getRow() >= 0 && position.getRow() < ChessBoard.BOARD_SIZE && position.getColumn() >= 0 && position.getColumn() < ChessBoard.BOARD_SIZE;
     }
 }
