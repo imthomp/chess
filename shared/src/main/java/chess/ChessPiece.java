@@ -80,9 +80,57 @@ public class ChessPiece {
         } else if (type == PieceType.ROOK) {
             getRookMoves(board, myPosition, moves);
         } else if (type == PieceType.PAWN) {
-            throw new RuntimeException("Not implemented");
+            getPawnMoves(board, myPosition, moves);
         }
         return moves;
+    }
+
+    private void getPawnMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
+        int direction = getTeamColor() == ChessGame.TeamColor.WHITE ? 1 : -1;
+        ChessPosition oneForward = new ChessPosition(myPosition.getRow() + direction, myPosition.getColumn());
+        ChessPosition twoForward = new ChessPosition(myPosition.getRow() + 2 * direction, myPosition.getColumn());
+        ChessPosition leftDiagonal = new ChessPosition(myPosition.getRow() + direction, myPosition.getColumn() - 1);
+        ChessPosition rightDiagonal = new ChessPosition(myPosition.getRow() + direction, myPosition.getColumn() + 1);
+
+        ChessPiece.PieceType[] promotions = new ChessPiece.PieceType[] {PieceType.QUEEN, PieceType.BISHOP, PieceType.KNIGHT, PieceType.ROOK};
+
+        int promotionRow = getTeamColor() == ChessGame.TeamColor.WHITE ? ChessBoard.BOARD_SIZE : 1;
+
+        if (isInBounds(oneForward)) {
+            ChessPiece piece = board.getPiece(oneForward);
+            if (piece == null) {
+                if (oneForward.getRow() == promotionRow) {
+                    for (ChessPiece.PieceType promotion : promotions) {
+                        moves.add(new ChessMove(myPosition, oneForward, promotion));
+                    }
+                } else {
+                    moves.add(new ChessMove(myPosition, oneForward, null));
+                }
+                if (isInBounds(twoForward)) {
+                    ChessPiece piece2 = board.getPiece(twoForward);
+                    if (piece2 == null && myPosition.getRow() == (getTeamColor() == ChessGame.TeamColor.WHITE ? 2 : 7)) {
+                        moves.add(new ChessMove(myPosition, twoForward, null));
+                    }
+                }
+            }
+        }
+        getPawnCaptures(board, myPosition, moves, leftDiagonal, promotions, promotionRow);
+        getPawnCaptures(board, myPosition, moves, rightDiagonal, promotions, promotionRow);
+    }
+
+    private void getPawnCaptures(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, ChessPosition rightDiagonal, PieceType[] promotions, int promotionRow) {
+        if (isInBounds(rightDiagonal)) {
+            ChessPiece piece = board.getPiece(rightDiagonal);
+            if (piece != null && isNotMyTeam(piece)) {
+                if (rightDiagonal.getRow() == promotionRow) {
+                    for (PieceType promotion : promotions) {
+                        moves.add(new ChessMove(myPosition, rightDiagonal, promotion));
+                    }
+                } else {
+                    moves.add(new ChessMove(myPosition, rightDiagonal, null));
+                }
+            }
+        }
     }
 
     private void getKingMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
