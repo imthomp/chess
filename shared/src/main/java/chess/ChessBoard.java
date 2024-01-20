@@ -88,7 +88,7 @@ private ChessPiece[][] squares = new ChessPiece[BOARD_SIZE][BOARD_SIZE];
                 if (piece == null) {
                     builder.append("  ");
                 } else {
-                    builder.append(piece.toString()).append(" ");
+                    builder.append(piece).append(" ");
                 }
             }
             builder.append("\n");
