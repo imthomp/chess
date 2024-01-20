@@ -202,4 +202,13 @@ public class ChessPiece {
     private boolean isNotMyTeam(ChessPiece piece) {
         return piece.getTeamColor() != getTeamColor();
     }
+    @Override
+    public String toString() {
+        // just an initial. white is uppercase. black is lowercase.
+        if (getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return type.toString().substring(0, 1);
+        } else {
+            return type.toString().substring(0, 1).toLowerCase();
+        }
+    }
 }
