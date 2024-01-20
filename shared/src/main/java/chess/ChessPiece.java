@@ -69,14 +69,14 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         HashSet<ChessMove> moves = new HashSet<>();
         if (type == PieceType.KING) {
-            throw new RuntimeException("Not implemented");
+            getKingMoves(board, myPosition, moves);
         } else if (type == PieceType.QUEEN) {
             getBishopMoves(board, myPosition, moves);
             getRookMoves(board, myPosition, moves);
         } else if (type == PieceType.BISHOP) {
             getBishopMoves(board, myPosition, moves);
         } else if (type == PieceType.KNIGHT) {
-            throw new RuntimeException("Not implemented");
+            getKnightMoves(board, myPosition, moves);
         } else if (type == PieceType.ROOK) {
             getRookMoves(board, myPosition, moves);
         } else if (type == PieceType.PAWN) {
@@ -85,7 +85,35 @@ public class ChessPiece {
         return moves;
     }
 
-    private void getTravelingPieceMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, int[] xDirections, int[] yDirections) {
+    private void getKingMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
+        int[] xDirections = new int[] {0, 0, -1, 1, -1, 1, -1, 1};
+        int[] yDirections = new int[] {1, -1, 0, 0, -1, 1, 1, -1};
+
+        getShortMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
+    }
+
+    private void getKnightMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
+        int[] xDirections = new int[] {1, 1, -1, -1, 2, 2, -2, -2};
+        int[] yDirections = new int[] {2, -2, 2, -2, 1, -1, 1, -1};
+
+        getShortMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
+    }
+
+    private void getShortMovingPieceMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, int[] xDirections, int[] yDirections) {
+        for (int i = 0; i < xDirections.length; i++) {
+            int xDirection = xDirections[i];
+            int yDirection = yDirections[i];
+            ChessPosition destination = new ChessPosition(myPosition.getRow() + xDirection, myPosition.getColumn() + yDirection);
+            if (isInBounds(destination)) {
+                ChessPiece piece = board.getPiece(destination);
+                if (piece == null || isNotMyTeam(piece)) {
+                    moves.add(new ChessMove(myPosition, destination, null));
+                }
+            }
+        }
+    }
+
+    private void getLongMovingPieceMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, int[] xDirections, int[] yDirections) {
         for (int i = 0; i < xDirections.length; i++) {
             int xDirection = xDirections[i];
             int yDirection = yDirections[i];
@@ -109,14 +137,14 @@ public class ChessPiece {
         int[] xDirections = new int[] {0, 0, -1, 1};
         int[] yDirections = new int[] {1, -1, 0, 0};
 
-        getTravelingPieceMoves(board, myPosition, moves, xDirections, yDirections);
+        getLongMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
     }
 
     private void getBishopMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
         int[] xDirections = new int[] {1, -1, -1, 1};
         int[] yDirections = new int[] {1, 1, -1, -1};
 
-        getTravelingPieceMoves(board, myPosition, moves, xDirections, yDirections);
+        getLongMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
     }
 
     private boolean isInBounds(ChessPosition position) {
