@@ -71,14 +71,13 @@ public class ChessPiece {
         if (type == PieceType.KING) {
             throw new RuntimeException("Not implemented");
         } else if (type == PieceType.QUEEN) {
-            getBishopMoves(board, myPosition, moves);
-            getRookMoves(board, myPosition, moves);
+            throw new RuntimeException("Not implemented");
         } else if (type == PieceType.BISHOP) {
             getBishopMoves(board, myPosition, moves);
         } else if (type == PieceType.KNIGHT) {
             throw new RuntimeException("Not implemented");
         } else if (type == PieceType.ROOK) {
-            getRookMoves(board, myPosition, moves);
+            throw new RuntimeException("Not implemented");
         } else if (type == PieceType.PAWN) {
             throw new RuntimeException("Not implemented");
         }
@@ -86,38 +85,33 @@ public class ChessPiece {
     }
 
     private void getBishopMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
-        int[] rowOffsets = {-1, -1, 1, 1};
-        int[] colOffsets = {-1, 1, -1, 1};
+        int[] xDirections = new int[] {1, -1, -1, 1};
+        int[] yDirections = new int[] {1, 1, -1, -1};
 
-        getFarMovingPieceMoves(board, myPosition, moves, rowOffsets, colOffsets);
-    }
-
-    private void getRookMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
-        int[] rowOffsets = {-1, 0, 0, 1};
-        int[] colOffsets = {0, -1, 1, 0};
-
-        getFarMovingPieceMoves(board, myPosition, moves, rowOffsets, colOffsets);
-    }
-
-    private void getFarMovingPieceMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, int[] rowOffsets, int[] colOffsets) {
-        for (int i = 0; i < rowOffsets.length; i++) {
-            int rowOffset = rowOffsets[i];
-            int colOffset = colOffsets[i];
-
-            ChessPosition destination = new ChessPosition(myPosition.getRow() + rowOffset, myPosition.getColumn() + colOffset);
-            addMovesUntilBlocked(board, myPosition, destination, moves);
+        for (int i = 0; i < xDirections.length; i++) {
+            int xDirection = xDirections[i];
+            int yDirection = yDirections[i];
+            ChessPosition destination = new ChessPosition(myPosition.getRow() + xDirection, myPosition.getColumn() + yDirection);
+            while (isInBounds(destination)) {
+                ChessPiece piece = board.getPiece(destination);
+                if (piece == null) {
+                    moves.add(new ChessMove(myPosition, destination, null));
+                } else if (isNotMyTeam(piece)) {
+                    moves.add(new ChessMove(myPosition, destination, null));
+                    break;
+                } else {
+                    break;
+                }
+                destination = new ChessPosition(destination.getRow() + xDirection, destination.getColumn() + yDirection);
+            }
         }
     }
 
-    private void addMovesUntilBlocked(ChessBoard board, ChessPosition myPosition, ChessPosition destination, HashSet<ChessMove> moves) {
-        // Check if the destination is valid and not occupied by a friendly piece
-        while (isValidPosition(destination) && (board.getPiece(destination) == null || board.getPiece(destination).getTeamColor() != getTeamColor())) {
-            moves.add(new ChessMove(myPosition, destination, null));
-            destination = new ChessPosition(destination.getRow() + (destination.getRow() - myPosition.getRow()), destination.getColumn() + (destination.getColumn() - myPosition.getColumn()));
-        }
+    private boolean isInBounds(ChessPosition position) {
+        return position.getRow() > 0 && position.getRow() <= ChessBoard.BOARD_SIZE && position.getColumn() > 0 && position.getColumn() <= ChessBoard.BOARD_SIZE;
     }
 
-    public boolean isValidPosition(ChessPosition position) {
-        return position.getRow() >= 0 && position.getRow() < ChessBoard.BOARD_SIZE && position.getColumn() >= 0 && position.getColumn() < ChessBoard.BOARD_SIZE;
+    private boolean isNotMyTeam(ChessPiece piece) {
+        return piece.getTeamColor() != getTeamColor();
     }
 }
