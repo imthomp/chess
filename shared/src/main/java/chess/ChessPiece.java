@@ -46,19 +46,6 @@ public class ChessPiece {
         return type;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ChessPiece that = (ChessPiece) o;
-        return pieceColor == that.pieceColor && type == that.type;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(pieceColor, type);
-    }
-
     /**
      * Calculates all the positions a chess piece can move to
      * Does not take into account moves that are illegal due to leaving the king in
@@ -71,8 +58,7 @@ public class ChessPiece {
         if (type == PieceType.KING) {
             getKingMoves(board, myPosition, moves);
         } else if (type == PieceType.QUEEN) {
-            getBishopMoves(board, myPosition, moves);
-            getRookMoves(board, myPosition, moves);
+            getQueenMoves(board, myPosition, moves);
         } else if (type == PieceType.BISHOP) {
             getBishopMoves(board, myPosition, moves);
         } else if (type == PieceType.KNIGHT) {
@@ -83,6 +69,38 @@ public class ChessPiece {
             getPawnMoves(board, myPosition, moves);
         }
         return moves;
+    }
+    private void getKingMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
+        int[] xDirections = new int[] {0, 0, -1, 1, -1, 1, -1, 1};
+        int[] yDirections = new int[] {1, -1, 0, 0, -1, 1, 1, -1};
+
+        getShortMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
+    }
+
+    private void getQueenMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
+        getBishopMoves(board, myPosition, moves);
+        getRookMoves(board, myPosition, moves);
+    }
+
+    private void getBishopMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
+        int[] xDirections = new int[] {1, -1, -1, 1};
+        int[] yDirections = new int[] {1, 1, -1, -1};
+
+        getLongMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
+    }
+
+    private void getKnightMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
+        int[] xDirections = new int[] {1, 1, -1, -1, 2, 2, -2, -2};
+        int[] yDirections = new int[] {2, -2, 2, -2, 1, -1, 1, -1};
+
+        getShortMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
+    }
+
+    private void getRookMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
+        int[] xDirections = new int[] {0, 0, -1, 1};
+        int[] yDirections = new int[] {1, -1, 0, 0};
+
+        getLongMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
     }
 
     private void getPawnMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
@@ -133,20 +151,6 @@ public class ChessPiece {
         }
     }
 
-    private void getKingMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
-        int[] xDirections = new int[] {0, 0, -1, 1, -1, 1, -1, 1};
-        int[] yDirections = new int[] {1, -1, 0, 0, -1, 1, 1, -1};
-
-        getShortMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
-    }
-
-    private void getKnightMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
-        int[] xDirections = new int[] {1, 1, -1, -1, 2, 2, -2, -2};
-        int[] yDirections = new int[] {2, -2, 2, -2, 1, -1, 1, -1};
-
-        getShortMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
-    }
-
     private void getShortMovingPieceMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, int[] xDirections, int[] yDirections) {
         for (int i = 0; i < xDirections.length; i++) {
             int xDirection = xDirections[i];
@@ -181,20 +185,6 @@ public class ChessPiece {
         }
     }
 
-    private void getRookMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
-        int[] xDirections = new int[] {0, 0, -1, 1};
-        int[] yDirections = new int[] {1, -1, 0, 0};
-
-        getLongMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
-    }
-
-    private void getBishopMoves(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves) {
-        int[] xDirections = new int[] {1, -1, -1, 1};
-        int[] yDirections = new int[] {1, 1, -1, -1};
-
-        getLongMovingPieceMoves(board, myPosition, moves, xDirections, yDirections);
-    }
-
     private boolean isInBounds(ChessPosition position) {
         return position.getRow() > 0 && position.getRow() <= ChessBoard.BOARD_SIZE && position.getColumn() > 0 && position.getColumn() <= ChessBoard.BOARD_SIZE;
     }
@@ -202,9 +192,22 @@ public class ChessPiece {
     private boolean isNotMyTeam(ChessPiece piece) {
         return piece.getTeamColor() != getTeamColor();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ChessPiece that = (ChessPiece) o;
+        return pieceColor == that.pieceColor && type == that.type;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pieceColor, type);
+    }
+
     @Override
     public String toString() {
-        // just an initial. white is uppercase. black is lowercase.
         if (getTeamColor() == ChessGame.TeamColor.WHITE) {
             return type.toString().substring(0, 1);
         } else {
