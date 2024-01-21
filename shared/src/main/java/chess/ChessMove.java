@@ -21,26 +21,14 @@ public class ChessMove {
         this.promotionPiece = promotionPiece;
     }
 
-    /**
-     * @return ChessPosition of starting location
-     */
     public ChessPosition getStartPosition() {
         return startPosition;
     }
 
-    /**
-     * @return ChessPosition of ending location
-     */
     public ChessPosition getEndPosition() {
         return endPosition;
     }
 
-    /**
-     * Gets the type of piece to promote a pawn to if pawn promotion is part of this
-     * chess move
-     *
-     * @return Type of piece to promote a pawn to, or null if no promotion
-     */
     public ChessPiece.PieceType getPromotionPiece() {
         return promotionPiece;
     }
@@ -60,18 +48,10 @@ public class ChessMove {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder();
-
-        stringBuilder.append("Move: ");
-        stringBuilder.append(startPosition);
-        stringBuilder.append(" to ");
-        stringBuilder.append(endPosition);
-
-        if (promotionPiece != null) {
-            stringBuilder.append(" with promotion to ");
-            stringBuilder.append(promotionPiece);
-        }
-
-        return stringBuilder.toString();
+        return "Move: " +
+                startPosition +
+                " to " +
+                endPosition +
+                (promotionPiece != null ? " with promotion to " + promotionPiece : "");
     }
 }
