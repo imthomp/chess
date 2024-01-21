@@ -10,17 +10,15 @@ import java.util.Collection;
  */
 public class ChessGame {
 
-    private TeamColor currentTeamTurn;
-
     public ChessGame() {
-        this.currentTeamTurn = TeamColor.WHITE;
+
     }
 
     /**
      * @return Which team's turn it is
      */
     public TeamColor getTeamTurn() {
-        return currentTeamTurn;
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -29,7 +27,7 @@ public class ChessGame {
      * @param team the team whose turn it is
      */
     public void setTeamTurn(TeamColor team) {
-        this.currentTeamTurn = team;
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -48,13 +46,7 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        ChessPiece piece = getBoard().getPiece(startPosition);
-
-        if (piece == null) {
-            return null;
-        }
-
-        return piece.pieceMoves(getBoard(), startPosition);
+        throw new RuntimeException("Not implemented");
     }
 
     /**
@@ -65,15 +57,6 @@ public class ChessGame {
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
         throw new RuntimeException("Not implemented");
-    }
-
-    private void switchTeamTurn() {
-        if (getTeamTurn() == TeamColor.WHITE) {
-            setTeamTurn(TeamColor.BLACK);
-        }
-        else {
-            setTeamTurn(TeamColor.WHITE);
-        }
     }
 
     /**
@@ -104,22 +87,7 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        ChessBoard board = getBoard();
-
-        for (int row = 0; row < ChessBoard.BOARD_SIZE; row++) {
-            for (int col = 0; col < ChessBoard.BOARD_SIZE; col++) {
-                ChessPosition currentPosition = new ChessPosition(row, col);
-                ChessPiece piece = board.getPiece(currentPosition);
-
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    if (!validMoves(currentPosition).isEmpty()) {
-                        return false;
-                    }
-                }
-            }
-        }
-
-        return true;
+        throw new RuntimeException("Not implemented");
     }
 
     /**
