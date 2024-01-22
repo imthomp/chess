@@ -56,35 +56,10 @@ public class ChessGame {
         // cannot put king in check
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
-        // if (piece.getTeamColor() != teamTurn) {
-        //     return null;
-        // }
         if (isInCheck(piece.getTeamColor())) {
             moves = getOutOfCheckMoves(piece, startPosition);
         }
-        for (var move : piece.pieceMoves(board, startPosition)) {
-            // make the move
-            // check if king is in check
-            // if so, remove the move
-            // undo the move
-            ChessPiece pieceAtEnd = board.getPiece(move.getEndPosition());
-            board.addPiece(move.getEndPosition(), piece);
-            board.addPiece(move.getStartPosition(), null);
-            if (isInCheck(piece.getTeamColor())) {
-                moves.remove(move);
-            }
-            board.addPiece(move.getStartPosition(), piece);
-            board.addPiece(move.getEndPosition(), pieceAtEnd);
-        }
-        // if king is in check, move must be getting out of check
-        // if king is not in check, move must not be putting king in check
-
-        if (moves.isEmpty()) {
-            // return an empty collection
-            // make sure it's an empty collection and not just "null"
-            return moves;
-        }
-        return moves;
+        return checkAllPieceMoves(piece, startPosition, moves);
     }
 
     /**
@@ -104,6 +79,9 @@ public class ChessGame {
         ChessPiece piece = board.getPiece(move.getStartPosition());
         if (piece == null) {
             throw new InvalidMoveException("No piece at start position");
+        }
+        if (piece.getTeamColor() != getTeamTurn()) {
+            throw new InvalidMoveException("Not team's turn");
         }
         Collection<ChessMove> moves = piece.pieceMoves(board, move.getStartPosition());
         if (!moves.contains(move)) {
@@ -175,17 +153,7 @@ public class ChessGame {
         if (!isInCheck(teamColor)) {
             return false;
         }
-        for (int row = 1; row <= ChessBoard.BOARD_SIZE; row++) {
-            for (int col = 1; col <= ChessBoard.BOARD_SIZE; col++) {
-                ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                if (piece != null && piece.getTeamColor() == teamColor) {
-                    if (!getOutOfCheckMoves(piece, new ChessPosition(row, col)).isEmpty()) {
-                        return false;
-                    }
-                }
-            }
-        }
-        return true;
+        return isInEndgame(teamColor);
     }
 
     /**
@@ -203,6 +171,10 @@ public class ChessGame {
         if (isInCheck(teamColor)) {
             return false;
         }
+        return isInEndgame(teamColor);
+    }
+
+    private boolean isInEndgame(TeamColor teamColor) {
         for (int row = 1; row <= ChessBoard.BOARD_SIZE; row++) {
             for (int col = 1; col <= ChessBoard.BOARD_SIZE; col++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
@@ -234,7 +206,7 @@ public class ChessGame {
         return board;
     }
 
-    // getoutofcheckmoves
+    // getOutOfCheckMoves
     // get all moves for all pieces of the team
     // for each move, make the move
     // if the king is still in check, remove the move
@@ -242,6 +214,10 @@ public class ChessGame {
     // return the moves
     private Collection<ChessMove> getOutOfCheckMoves(ChessPiece piece, ChessPosition startPosition) {
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        return checkAllPieceMoves(piece, startPosition, moves);
+    }
+
+    private Collection<ChessMove> checkAllPieceMoves(ChessPiece piece, ChessPosition startPosition, Collection<ChessMove> moves) {
         for (var move : piece.pieceMoves(board, startPosition)) {
             // make the move
             // check if king is in check
