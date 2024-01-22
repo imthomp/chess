@@ -14,7 +14,8 @@ public class ChessGame {
     private TeamColor teamTurn;
 
     public ChessGame() {
-
+        board = new ChessBoard();
+        teamTurn = TeamColor.WHITE;
     }
 
     /**
