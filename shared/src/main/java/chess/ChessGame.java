@@ -50,7 +50,39 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        return board.getPiece(startPosition).pieceMoves(board, startPosition);
+        // get the piece at the start position
+        // if there is no piece, return null
+        // otherwise, return the piece's valid moves
+        // cannot put king in check
+        ChessPiece piece = board.getPiece(startPosition);
+        Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        if (piece.getTeamColor() != teamTurn) {
+            return null;
+        }
+        if (isInCheck(piece.getTeamColor())) {
+            moves = getOutOfCheckMoves(piece, startPosition);
+        }
+        for (var move : piece.pieceMoves(board, startPosition)) {
+            // make the move
+            // check if king is in check
+            // if so, remove the move
+            // undo the move
+            ChessPiece pieceAtEnd = board.getPiece(move.getEndPosition());
+            board.addPiece(move.getEndPosition(), piece);
+            board.addPiece(move.getStartPosition(), null);
+            if (isInCheck(piece.getTeamColor())) {
+                moves.remove(move);
+            }
+            board.addPiece(move.getStartPosition(), piece);
+            board.addPiece(move.getEndPosition(), pieceAtEnd);
+        }
+        // if king is in check, move must be getting out of check
+        // if king is not in check, move must not be putting king in check
+
+        if (moves.isEmpty()) {
+            return null;
+        }
+        return moves;
     }
 
     /**
@@ -60,7 +92,34 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        // get the piece at the start position
+        // if there is no piece, throw an exception
+        // otherwise, get the piece's valid moves
+        // if the move is not in the valid moves, throw an exception
+        // otherwise, make the move
+        // if the move is a pawn promotion, promote the pawn
+        
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+        if (piece == null) {
+            throw new InvalidMoveException("No piece at start position");
+        }
+        Collection<ChessMove> moves = piece.pieceMoves(board, move.getStartPosition());
+        if (!moves.contains(move)) {
+            throw new InvalidMoveException("Move not in valid moves");
+        }
+        if (move.getPromotionPiece() != null) {
+            if (piece.getPieceType() != ChessPiece.PieceType.PAWN) {
+                throw new InvalidMoveException("Piece is not a pawn");
+            }
+            if (move.getEndPosition().getRow() != 8 && move.getEndPosition().getRow() != 1) {
+                throw new InvalidMoveException("Pawn is not at end of board");
+            }
+            board.addPiece(move.getEndPosition(), new ChessPiece(piece.getTeamColor(), move.getPromotionPiece()));
+        } else {
+            board.addPiece(move.getEndPosition(), piece);
+        }
+        board.addPiece(move.getStartPosition(), null);
+        setTeamTurn((teamTurn == TeamColor.WHITE) ? TeamColor.BLACK : TeamColor.WHITE);
     }
 
     /**
@@ -137,5 +196,30 @@ public class ChessGame {
      */
     public ChessBoard getBoard() {
         return board;
+    }
+
+    // getoutofcheckmoves
+    // get all moves for all pieces of the team
+    // for each move, make the move
+    // if the king is still in check, remove the move
+    // undo the move
+    // return the moves
+    private Collection<ChessMove> getOutOfCheckMoves(ChessPiece piece, ChessPosition startPosition) {
+        Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
+        for (var move : piece.pieceMoves(board, startPosition)) {
+            // make the move
+            // check if king is in check
+            // if so, remove the move
+            // undo the move
+            ChessPiece pieceAtEnd = board.getPiece(move.getEndPosition());
+            board.addPiece(move.getEndPosition(), piece);
+            board.addPiece(move.getStartPosition(), null);
+            if (isInCheck(piece.getTeamColor())) {
+                moves.remove(move);
+            }
+            board.addPiece(move.getStartPosition(), piece);
+            board.addPiece(move.getEndPosition(), pieceAtEnd);
+        }
+        return moves;
     }
 }
