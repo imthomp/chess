@@ -56,9 +56,9 @@ public class ChessGame {
         // cannot put king in check
         ChessPiece piece = board.getPiece(startPosition);
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
-        if (piece.getTeamColor() != teamTurn) {
-            return null;
-        }
+        // if (piece.getTeamColor() != teamTurn) {
+        //     return null;
+        // }
         if (isInCheck(piece.getTeamColor())) {
             moves = getOutOfCheckMoves(piece, startPosition);
         }
@@ -80,7 +80,9 @@ public class ChessGame {
         // if king is not in check, move must not be putting king in check
 
         if (moves.isEmpty()) {
-            return null;
+            // return an empty collection
+            // make sure it's an empty collection and not just "null"
+            return moves;
         }
         return moves;
     }
