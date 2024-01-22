@@ -123,9 +123,6 @@ public class ChessGame {
                 }
             }
         }
-        if (kingPosition == null) {
-            throw new RuntimeException("No king found");
-        }
         for (int row = 1; row <= ChessBoard.BOARD_SIZE; row++) {
             for (int col = 1; col <= ChessBoard.BOARD_SIZE; col++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
