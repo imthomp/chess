@@ -136,16 +136,16 @@ public class ChessPiece {
         getPawnCaptures(board, myPosition, moves, rightDiagonal, promotions, promotionRow);
     }
 
-    private void getPawnCaptures(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, ChessPosition rightDiagonal, PieceType[] promotions, int promotionRow) {
-        if (isInBounds(rightDiagonal)) {
-            ChessPiece piece = board.getPiece(rightDiagonal);
+    private void getPawnCaptures(ChessBoard board, ChessPosition myPosition, HashSet<ChessMove> moves, ChessPosition diagonal, PieceType[] promotions, int promotionRow) {
+        if (isInBounds(diagonal)) {
+            ChessPiece piece = board.getPiece(diagonal);
             if (piece != null && isNotMyTeam(piece)) {
-                if (rightDiagonal.getRow() == promotionRow) {
+                if (diagonal.getRow() == promotionRow) {
                     for (PieceType promotion : promotions) {
-                        moves.add(new ChessMove(myPosition, rightDiagonal, promotion));
+                        moves.add(new ChessMove(myPosition, diagonal, promotion));
                     }
                 } else {
-                    moves.add(new ChessMove(myPosition, rightDiagonal, null));
+                    moves.add(new ChessMove(myPosition, diagonal, null));
                 }
             }
         }
