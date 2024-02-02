@@ -83,7 +83,7 @@ public class ChessGame {
         if (piece.getTeamColor() != getTeamTurn()) {
             throw new InvalidMoveException("Not team's turn");
         }
-        Collection<ChessMove> moves = piece.pieceMoves(board, move.getStartPosition());
+        Collection<ChessMove> moves = validMoves(move.getStartPosition());
         if (!moves.contains(move)) {
             throw new InvalidMoveException("Move not in valid moves");
         }
@@ -127,8 +127,11 @@ public class ChessGame {
             for (int col = 1; col <= ChessBoard.BOARD_SIZE; col++) {
                 ChessPiece piece = board.getPiece(new ChessPosition(row, col));
                 if (piece != null && piece.getTeamColor() != teamColor) {
-                    if (piece.pieceMoves(board, new ChessPosition(row, col)).contains(new ChessMove(new ChessPosition(row, col), kingPosition, null))) {
-                        return true;
+                    Collection<ChessMove> moves = piece.pieceMoves(board, new ChessPosition(row, col));
+                    for (ChessMove move : moves) {
+                        if (move.getEndPosition().equals(kingPosition)) {
+                            return true;
+                        }
                     }
                 }
             }
@@ -232,3 +235,7 @@ public class ChessGame {
         return moves;
     }
 }
+
+// king is in check and thinks he can get out by capturing
+// when it gets to the new position, check if still in check
+// so, check new position!
