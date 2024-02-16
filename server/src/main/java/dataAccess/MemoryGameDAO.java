@@ -2,7 +2,10 @@ package dataAccess;
 
 import model.GameData;
 
+import java.util.Collection;
+
 public class MemoryGameDAO implements GameDAO {
+    Collection<GameData> games;
     public void createGame(GameData g) throws DataAccessException {
         // Insert game into database
     }
@@ -14,6 +17,9 @@ public class MemoryGameDAO implements GameDAO {
     }
     public void clear() throws DataAccessException {
         // Clear database
+        for (GameData g : games) {
+            games.remove(g);
+        }
     }
     public void updateGame(GameData g) throws DataAccessException {
         // Update game in database
