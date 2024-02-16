@@ -1,6 +1,7 @@
 package server;
 
 import spark.*;
+import handler.ClearHandler;
 
 import java.nio.file.Paths;
 
@@ -12,6 +13,7 @@ public class Server {
         Spark.staticFiles.location("web");
 
         // Register your endpoints and handle exceptions here.
+        Spark.delete("/db", (req, res) -> new ClearHandler().handleClear(req, res));
 
         Spark.awaitInitialization();
         return Spark.port();
