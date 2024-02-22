@@ -3,9 +3,10 @@ package dataAccess;
 import model.UserData;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO {
-    Collection<UserData> users;
+    HashMap<String,UserData> users;
     public void createUser(UserData u) throws DataAccessException {
         // Insert user into database
     }
@@ -14,8 +15,6 @@ public class MemoryUserDAO implements UserDAO {
     }
     public void clear() throws DataAccessException {
         // Clear database
-        for (UserData u : users) {
-            users.remove(u);
-        }
+        users = new HashMap<String,UserData>();
     }
 }

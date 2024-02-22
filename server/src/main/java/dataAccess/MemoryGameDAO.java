@@ -3,9 +3,10 @@ package dataAccess;
 import model.GameData;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO {
-    Collection<GameData> games;
+    HashMap<Integer, GameData> games;
     public void createGame(GameData g) throws DataAccessException {
         // Insert game into database
     }
@@ -17,9 +18,7 @@ public class MemoryGameDAO implements GameDAO {
     }
     public void clear() throws DataAccessException {
         // Clear database
-        for (GameData g : games) {
-            games.remove(g);
-        }
+        games = new HashMap<Integer, GameData>();
     }
     public void updateGame(GameData g) throws DataAccessException {
         // Update game in database
