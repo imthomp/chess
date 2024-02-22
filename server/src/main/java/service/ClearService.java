@@ -1,20 +1,18 @@
 package service;
 
-import dataAccess.AuthDAO;
-import dataAccess.DataAccessException;
-import dataAccess.GameDAO;
-import dataAccess.UserDAO;
+import dataAccess.*;
 import result.ClearResult;
 
 public class ClearService {
     public ClearResult clear() {
         try {
-            UserDAO userDAO = new UserDAO();
+            UserDAO userDAO = new MemoryUserDAO();
             userDAO.clear();
-            AuthDAO authDAO = new AuthDAO();
+            AuthDAO authDAO = new MemoryAuthDAO();
             authDAO.clear();
-            GameDAO gameDAO = new GameDAO();
+            GameDAO gameDAO = new MemoryGameDAO();
             gameDAO.clear();
+            return new ClearResult("");
         } catch (DataAccessException e) {
             String message = e.getMessage();
             return new ClearResult(message);
