@@ -1,18 +1,27 @@
 package service;
 
+import chess.ChessPiece;
+import chess.ChessPosition;
 import dataAccess.*;
 import result.ClearResult;
 
-public class ClearService {
+public class ClearService  {
+    private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
+    private final UserDAO userDAO;
+
+    public ClearService (AuthDAO authDAO, GameDAO gameDAO, UserDAO userDAO) {
+        this.authDAO = authDAO;
+        this.gameDAO = gameDAO;
+        this.userDAO = userDAO;
+    }
+
     public ClearResult clear() {
         try {
-            UserDAO userDAO = new MemoryUserDAO();
-            userDAO.clear();
-            AuthDAO authDAO = new MemoryAuthDAO();
             authDAO.clear();
-            GameDAO gameDAO = new MemoryGameDAO();
             gameDAO.clear();
-            return new ClearResult("");
+            userDAO.clear();
+            return new ClearResult(null);
         } catch (DataAccessException e) {
             String message = e.getMessage();
             return new ClearResult("Error:" + message);
