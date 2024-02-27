@@ -6,8 +6,8 @@ import model.GameData;
 import java.util.HashSet;
 
 public interface GameDAO {
-    GameData createGame(String authToken, String gameName) throws DataAccessException;
-    void getGame(int gameID) throws DataAccessException;
+    void createGame(Integer gameID, String gameName) throws DataAccessException;
+    GameData getGame(int gameID) throws DataAccessException;
     public HashSet<GameData> listGames(String username) throws DataAccessException;
     void clear() throws DataAccessException;
     void updateGame(GameData g) throws DataAccessException;
