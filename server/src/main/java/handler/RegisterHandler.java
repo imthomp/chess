@@ -36,13 +36,13 @@ public class RegisterHandler {
         }
 
         // Failure response	[400] { "message": "Error: bad request" }
-        if (Objects.equals(result.message(), "bad request")) {
+        if (Objects.equals(result.message(), "Error: bad request")) {
             // TODO properly throw error somewhere
             res.status(400);
         }
 
         // Failure response	[403] { "message": "Error: already taken" }
-        if (Objects.equals(result.message(), "already taken")) {
+        if (Objects.equals(result.message(), "Error: already taken")) {
             // TODO properly throw error somewhere
             res.status(403);
         }
