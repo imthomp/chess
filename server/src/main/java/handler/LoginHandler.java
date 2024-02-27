@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import dataAccess.AuthDAO;
 import dataAccess.UserDAO;
 import model.UserData;
-import result.RegisterResult;
+import result.UserResult;
 import service.LoginService;
 import spark.Request;
 import spark.Response;
@@ -22,7 +22,7 @@ public class LoginHandler {
         LoginService service = new LoginService(authDAO, userDAO);
         var serializer = new Gson();
         UserData u = serializer.fromJson(req.body(), UserData.class);
-        RegisterResult result = service.login(u);
+        UserResult result = service.login(u);
         var json = serializer.toJson(result);
 
         // Success response	[200] { "username":"", "authToken":"" }

@@ -2,7 +2,7 @@ package service;
 
 import dataAccess.*;
 import model.UserData;
-import result.RegisterResult;
+import result.UserResult;
 
 public class LoginService {
     private final AuthDAO authDAO;
@@ -12,16 +12,16 @@ public class LoginService {
         this.authDAO = authDAO;
         this.userDAO = userDAO;
     }
-    public RegisterResult login(UserData u) {
+    public UserResult login(UserData u) {
         try {
             if (userDAO.checkUserCredentials(u)) {
                 String username = u.username();
                 String authToken = authDAO.createAuth(username);
-                return new RegisterResult(username, authToken, null);
+                return new UserResult(username, authToken, null);
             }
         } catch (DataAccessException e) {
             String message = e.getMessage();
-            return new RegisterResult(null, null, "Error:" + message);
+            return new UserResult(null, null, "Error:" + message);
         }
         return null;
     }
