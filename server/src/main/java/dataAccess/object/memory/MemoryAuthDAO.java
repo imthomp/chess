@@ -17,7 +17,7 @@ public class MemoryAuthDAO implements AuthDAO {
     public String createAuth(String username) throws DataAccessException {
         // Insert auth into database
         String authToken = UUID.randomUUID().toString();
-        auths.put(username, new AuthData(username, authToken));
+        auths.put(authToken, new AuthData(authToken, username));
         return authToken;
     }
 
