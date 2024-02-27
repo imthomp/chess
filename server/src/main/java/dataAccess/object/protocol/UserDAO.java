@@ -1,8 +1,7 @@
-package dataAccess;
+package dataAccess.object.protocol;
 
+import dataAccess.exception.DataAccessException;
 import model.UserData;
-
-import javax.xml.crypto.Data;
 
 public interface UserDAO {
     void createUser(UserData u) throws DataAccessException;

@@ -1,11 +1,9 @@
-package dataAccess;
+package dataAccess.object.memory;
 
-import chess.ChessBoard;
-import chess.ChessGame;
+import dataAccess.exception.DataAccessException;
+import dataAccess.object.protocol.UserDAO;
 import model.UserData;
 
-import javax.xml.crypto.Data;
-import java.util.Collection;
 import java.util.HashMap;
 
 public class MemoryUserDAO implements UserDAO {
@@ -29,8 +27,13 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     public boolean checkUserCredentials(UserData u) throws DataAccessException {
-        // TODO
-        return false;
+        String username = u.username();
+        String password = u.password();
+        UserData user = users.get(username);
+        if (user == null) {
+            return false;
+        }
+        return user.password().equals(password);
     }
 
     public void clear() throws DataAccessException {

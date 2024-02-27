@@ -1,6 +1,9 @@
-package dataAccess;
+package dataAccess.object.memory;
 
+import dataAccess.object.protocol.AuthDAO;
+import dataAccess.exception.DataAccessException;
 import model.AuthData;
+
 import java.util.HashMap;
 import java.util.UUID;
 
