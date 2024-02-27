@@ -1,6 +1,8 @@
 package service;
 
-import dataAccess.*;
+import dataAccess.exception.DataAccessException;
+import dataAccess.object.protocol.AuthDAO;
+import dataAccess.object.protocol.UserDAO;
 import model.UserData;
 import result.UserResult;
 
@@ -19,10 +21,12 @@ public class LoginService {
                 String authToken = authDAO.createAuth(username);
                 return new UserResult(username, authToken, null);
             }
+            else {
+                return new UserResult(null, null, "Error: unauthorized");
+            }
         } catch (DataAccessException e) {
             String message = e.getMessage();
             return new UserResult(null, null, "Error:" + message);
         }
-        return null;
     }
 }
