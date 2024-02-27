@@ -14,18 +14,15 @@ public class MemoryGameDAO implements GameDAO {
         games = new HashMap<Integer, GameData>();
     }
 
-    public GameData createGame(String authToken, String gameName) throws DataAccessException {
+    public void createGame(Integer gameID, String gameName) throws DataAccessException {
         // Create game in database
-        return null;
+        GameData game = new GameData(gameID, null, null, gameName, null);
+        games.put(gameID, game);
     }
 
-//    public void createGame(GameData g) throws DataAccessException {
-//        // Insert game into database
-//        games.put(g.gameID(), g);
-//    }
-
-    public void getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) throws DataAccessException {
         // Get game from database
+        return games.get(gameID);
     }
 
     public HashSet<GameData> listGames(String username) throws DataAccessException {
