@@ -2,6 +2,7 @@ package handler;
 
 import dataAccess.object.protocol.AuthDAO;
 import dataAccess.object.protocol.GameDAO;
+import model.GameData;
 import result.GameResult;
 import service.CreateGameService;
 
@@ -25,10 +26,9 @@ public class CreateGameHandler {
 
         var serializer = new Gson();
 
-        // take json headers authorization: <authToken> and turn it into a string
-        // take json body and turn it into a string
-        String authToken = req.headers("Authorization");
-        String gameName = serializer.fromJson(req.body(), String.class);
+        String authToken = req.headers("authorization");
+        GameData game = serializer.fromJson(req.body(), GameData.class);
+        String gameName = game.gameName();
 
         GameResult result = service.createGame(authToken, gameName);
 
@@ -40,12 +40,12 @@ public class CreateGameHandler {
         }
 
         // Failure response [400] { "message": "Error: bad request" }
-        if (Objects.equals(result.message(), "bad request")) {
+        else if (Objects.equals(result.message(), "Error: bad request")) {
             res.status(400);
         }
 
         // Failure response [401] { "message": "Error: unauthorized" }
-        if (Objects.equals(result.message(), "unauthorized")) {
+        else if (Objects.equals(result.message(), "Error: unauthorized")) {
             res.status(401);
         }
 
