@@ -22,11 +22,11 @@ public class LoginService {
                 return new UserResult(username, authToken, null);
             }
             else {
-                return new UserResult(null, null, "Error: unauthorized");
+                throw new DataAccessException("unauthorized");
             }
         } catch (DataAccessException e) {
             String message = e.getMessage();
-            return new UserResult(null, null, "Error:" + message);
+            return new UserResult(null, null, "Error: " + message);
         }
     }
 }

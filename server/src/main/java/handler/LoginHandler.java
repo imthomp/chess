@@ -36,7 +36,7 @@ public class LoginHandler {
         }
 
         // Failure response	[401] { "message": "Error: unauthorized" }
-        if (Objects.equals(result.message(), "Error: unauthorized")) {
+        else if (Objects.equals(result.message(), "Error: unauthorized")) {
             res.status(401);
         }
 
