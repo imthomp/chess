@@ -25,8 +25,11 @@ public class CreateGameHandler {
 
         var serializer = new Gson();
 
-        String authToken = serializer.fromJson(req.body(), String.class);
+        // take json headers authorization: <authToken> and turn it into a string
+        // take json body and turn it into a string
+        String authToken = req.headers("Authorization");
         String gameName = serializer.fromJson(req.body(), String.class);
+
         GameResult result = service.createGame(authToken, gameName);
 
         var json = serializer.toJson(result);
