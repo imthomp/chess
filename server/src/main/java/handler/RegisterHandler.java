@@ -1,14 +1,14 @@
 package handler;
 
-import com.google.gson.Gson;
-import dataAccess.AuthDAO;
-import dataAccess.UserDAO;
+import dataAccess.object.protocol.AuthDAO;
+import dataAccess.object.protocol.UserDAO;
 import model.UserData;
 import result.UserResult;
 import service.RegisterService;
+
+import com.google.gson.Gson;
 import spark.Request;
 import spark.Response;
-
 import java.util.Objects;
 
 public class RegisterHandler {
@@ -21,15 +21,17 @@ public class RegisterHandler {
     }
     public Object handleRegister(Request req, Response res) {
         RegisterService service = new RegisterService(authDAO, userDAO);
+
         var serializer = new Gson();
+
         UserData u = serializer.fromJson(req.body(), UserData.class);
         UserResult result = service.register(u);
+
         var json = serializer.toJson(result);
 
         // Success response	[200] { "username":"", "authToken":"" }
         if (result.message() == null || result.message().isEmpty()) {
             res.status(200);
-            // TODO strip json of message
             return json;
         }
 
@@ -50,7 +52,6 @@ public class RegisterHandler {
             // TODO properly throw error somewhere
             res.status(500);
         }
-        // TODO strip json of username, authToken
         return json;
     }
 }

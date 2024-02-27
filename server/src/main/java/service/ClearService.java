@@ -1,6 +1,7 @@
 package service;
 
-import dataAccess.*;
+import dataAccess.exception.DataAccessException;
+import dataAccess.object.protocol.*;
 import result.MessageResult;
 
 public class ClearService  {

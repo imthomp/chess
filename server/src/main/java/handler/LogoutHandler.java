@@ -1,12 +1,12 @@
 package handler;
 
-import com.google.gson.Gson;
-import dataAccess.AuthDAO;
+import dataAccess.object.protocol.AuthDAO;
 import result.MessageResult;
 import service.LogoutService;
+
+import com.google.gson.Gson;
 import spark.Request;
 import spark.Response;
-
 import java.util.Objects;
 
 public class LogoutHandler {
@@ -17,7 +17,9 @@ public class LogoutHandler {
     }
     public Object handleLogout(Request req, Response res) {
         LogoutService service = new LogoutService(authDAO);
+
         var serializer = new Gson();
+
         String authToken = serializer.fromJson(req.body(), String.class);
         MessageResult result = service.logout(authToken);
 
