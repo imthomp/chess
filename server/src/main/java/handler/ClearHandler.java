@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import dataAccess.AuthDAO;
 import dataAccess.GameDAO;
 import dataAccess.UserDAO;
-import result.ClearResult;
+import result.MessageResult;
 import service.ClearService;
 import spark.Request;
 import spark.Response;
@@ -22,15 +22,16 @@ public class ClearHandler {
 
     public Object handleClear(Request req, Response res) {
         ClearService service = new ClearService(authDAO, gameDAO, userDAO);
-        ClearResult result = service.clear();
-
+        MessageResult result = service.clear();
         var serializer = new Gson();
         var json = serializer.toJson(result);
-        // Success
-        if (result.message() == null || result.message().isEmpty())  {
+
+        // Success response	[200]
+        if (result.message() == null || result.message().isEmpty()) {
             res.status(200);
         }
-        // Failure
+
+        // Failure response	[500] { "message": "Error: description" }
         else {
             res.status(500);
         }
