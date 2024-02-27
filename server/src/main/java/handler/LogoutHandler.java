@@ -20,7 +20,7 @@ public class LogoutHandler {
 
         var serializer = new Gson();
 
-        String authToken = serializer.fromJson(req.body(), String.class);
+        String authToken = req.headers("authorization");
         MessageResult result = service.logout(authToken);
 
         var json = serializer.toJson(result);
@@ -31,14 +31,12 @@ public class LogoutHandler {
         }
 
         // Failure response	[401] { "message": "Error: unauthorized" }
-        if (Objects.equals(result.message(), "unauthorized")) {
-            // TODO properly throw error somewhere
-            res.status(400);
+        else if (result.message().equals("Error: unauthorized")) {
+            res.status(401);
         }
 
         // Failure response	[500] { "message": "Error: description" }
         else {
-            // TODO properly throw error somewhere
             res.status(500);
         }
         return json;

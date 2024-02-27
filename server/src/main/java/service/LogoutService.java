@@ -12,14 +12,17 @@ public class LogoutService {
     }
     public MessageResult logout(String authToken) {
         try {
-            if (authToken == null || authToken.isEmpty()) {
-                return new MessageResult("Error: unauthorized");
+            if (authToken == null) {
+                throw new DataAccessException("unauthorized");
+            }
+            if (authDAO.getAuth(authToken) == null) {
+                throw new DataAccessException("unauthorized");
             }
             authDAO.deleteAuth(authToken);
             return new MessageResult(null);
         } catch (DataAccessException e) {
             String message = e.getMessage();
-            return new MessageResult(message);
+            return new MessageResult("Error: " + message);
         }
     }
 }
