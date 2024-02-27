@@ -1,37 +1,29 @@
 package service;
 
-import dataAccess.DataAccessException;
-import dataAccess.UserDAO;
+import dataAccess.*;
 import model.UserData;
-import result.RegisterResult;
-import dataAccess.MemoryUserDAO;
+import result.UserResult;
 
 public class RegisterService {
-    public RegisterResult getUser(String username) {
-        try {
-            UserDAO userDAO = new MemoryUserDAO();
-            UserData u = userDAO.getUser(username);
-            return new RegisterResult("");
-        } catch (DataAccessException e) {
-            String message = e.getMessage();
-            return new RegisterResult(message);
-        }
-    }
+    private final AuthDAO authDAO;
+    private final UserDAO userDAO;
 
-    public RegisterResult createUser(UserData u) {
+    public RegisterService (AuthDAO authDAO, UserDAO userDAO) {
+        this.authDAO = authDAO;
+        this.userDAO = userDAO;
+    }
+    public UserResult register(UserData u) {
         try {
-            UserDAO userDAO = new MemoryUserDAO();
-            if (getUser(u.username()) == null) {
+            if (userDAO.getUser(u) == null) {
                 userDAO.createUser(u);
+                String username = u.username();
+                String authToken = authDAO.createAuth(username);
+                return new UserResult(username, authToken, null);
             }
-            return new RegisterResult("");
         } catch (DataAccessException e) {
             String message = e.getMessage();
-            return new RegisterResult(message);
+            return new UserResult(null, null, "Error:" + message);
         }
-    }
-
-    public RegisterResult createAuth() {
-        return new RegisterResult("");
+        return null;
     }
 }

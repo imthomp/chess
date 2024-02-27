@@ -1,45 +1,56 @@
 package handler;
 
 import com.google.gson.Gson;
+import dataAccess.AuthDAO;
+import dataAccess.UserDAO;
 import model.UserData;
-import result.RegisterResult;
+import result.UserResult;
 import service.RegisterService;
 import spark.Request;
 import spark.Response;
 
+import java.util.Objects;
+
 public class RegisterHandler {
+    private final AuthDAO authDAO;
+    private final UserDAO userDAO;
+
+    public RegisterHandler (AuthDAO authDAO, UserDAO userDAO) {
+        this.authDAO = authDAO;
+        this.userDAO = userDAO;
+    }
     public Object handleRegister(Request req, Response res) {
-        RegisterService service = new RegisterService();
-        String username = req.queryParams("username");
-        String password = req.queryParams("password");
-        String email = req.queryParams("email");
-        UserData u = new UserData(username, password, email);
-
-        RegisterResult result = service.createUser(u);
-
+        RegisterService service = new RegisterService(authDAO, userDAO);
         var serializer = new Gson();
+        UserData u = serializer.fromJson(req.body(), UserData.class);
+        UserResult result = service.register(u);
         var json = serializer.toJson(result);
 
         // Success response	[200] { "username":"", "authToken":"" }
-        if (result.message().isEmpty()) {
+        if (result.message() == null || result.message().isEmpty()) {
             res.status(200);
+            // TODO strip json of message
             return json;
         }
 
         // Failure response	[400] { "message": "Error: bad request" }
-        if (result.message().equals("Error: bad request")) {
+        if (Objects.equals(result.message(), "bad request")) {
+            // TODO properly throw error somewhere
             res.status(400);
-            return json;
         }
 
         // Failure response	[403] { "message": "Error: already taken" }
-        if (result.message().equals("Error: already taken")) {
+        if (Objects.equals(result.message(), "already taken")) {
+            // TODO properly throw error somewhere
             res.status(403);
-            return json;
         }
 
         // Failure response	[500] { "message": "Error: description" }
-        res.status(500);
+        else {
+            // TODO properly throw error somewhere
+            res.status(500);
+        }
+        // TODO strip json of username, authToken
         return json;
     }
 }
