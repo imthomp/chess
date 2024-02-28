@@ -7,7 +7,7 @@ import model.AuthData;
 import model.GameData;
 import result.ListGamesResult;
 
-import java.util.HashSet;
+import java.util.Collection;
 
 public class ListGamesService  {
     private final AuthDAO authDAO;
@@ -22,16 +22,15 @@ public class ListGamesService  {
         try {
             AuthData authData = authDAO.getAuth(authToken);
             if (authData != null) {
-                String username = authData.username();
-                HashSet<GameData> games = gameDAO.listGames(username);
+                Collection<GameData> games = gameDAO.listGames();
                 return new ListGamesResult(games, null);
             }
             else {
-                return new ListGamesResult(null, "Error: unauthorized");
+                throw new DataAccessException("unauthorized");
             }
         } catch (DataAccessException e) {
             String message = e.getMessage();
-            return new ListGamesResult(null, "Error:" + message);
+            return new ListGamesResult(null, "Error: " + message);
         }
     }
 }

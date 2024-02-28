@@ -2,6 +2,6 @@ package result;
 
 import model.GameData;
 
-import java.util.HashSet;
+import java.util.Collection;
 
-public record ListGamesResult(HashSet<GameData> games, String message) {}
+public record ListGamesResult(Collection<GameData> games, String message) {}

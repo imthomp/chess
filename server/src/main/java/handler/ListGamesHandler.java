@@ -25,7 +25,7 @@ public class ListGamesHandler {
 
         var serializer = new Gson();
 
-        String authToken = serializer.fromJson(req.body(), String.class);
+        String authToken = req.headers("authorization");
         ListGamesResult result = service.listGames(authToken);
 
         var json = serializer.toJson(result);
@@ -36,7 +36,7 @@ public class ListGamesHandler {
         }
 
         // Failure response [401] { "message": "Error: unauthorized" }
-        if (Objects.equals(result.message(), "unauthorized")) {
+        else if (Objects.equals(result.message(), "Error: unauthorized")) {
             res.status(401);
         }
 
