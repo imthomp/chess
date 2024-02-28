@@ -30,7 +30,7 @@ public class RegisterHandler {
         var json = serializer.toJson(result);
 
         // Success response	[200] { "username":"", "authToken":"" }
-        if (result.message() == null || result.message().isEmpty()) {
+        if (result.message() == null) {
             res.status(200);
             return json;
         }
