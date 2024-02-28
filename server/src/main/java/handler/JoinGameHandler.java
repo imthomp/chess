@@ -3,6 +3,7 @@ package handler;
 import dataAccess.object.protocol.AuthDAO;
 import dataAccess.object.protocol.GameDAO;
 import result.MessageResult;
+import server.JoinGameObject;
 import service.JoinGameService;
 
 import com.google.gson.Gson;
@@ -23,10 +24,10 @@ public class JoinGameHandler {
 
         var serializer = new Gson();
 
-        // TODO properly receive each of these parameters
-        String authToken = serializer.fromJson(req.body(), String.class);
-        String playerColor = serializer.fromJson(req.body(), String.class);
-        String gameID = serializer.fromJson(req.body(), String.class);
+        String authToken = req.headers("authorization");
+        JoinGameObject game = serializer.fromJson(req.body(), JoinGameObject.class);
+        String playerColor = game.playerColor();
+        Integer gameID = game.gameID();
         MessageResult result = service.joinGame(authToken, playerColor, gameID);
 
         var json = serializer.toJson(result);
@@ -37,26 +38,22 @@ public class JoinGameHandler {
         }
 
         // Failure response	[400] { "message": "Error: bad request" }
-        if (Objects.equals(result.message(), "bad request")) {
-            // TODO properly throw error somewhere
+        else if (Objects.equals(result.message(), "Error: bad request")) {
             res.status(400);
         }
 
         // Failure response	[401] { "message": "Error: unauthorized" }
-        if (Objects.equals(result.message(), "unauthorized")) {
-            // TODO properly throw error somewhere
+        else if (Objects.equals(result.message(), "Error: unauthorized")) {
             res.status(401);
         }
 
         // Failure response	[403] { "message": "Error: already taken" }
-        if (Objects.equals(result.message(), "already taken")) {
-            // TODO properly throw error somewhere
-            res.status(401);
+        else if (Objects.equals(result.message(), "Error: already taken")) {
+            res.status(403);
         }
 
         // Failure response	[500] { "message": "Error: description" }
         else {
-            // TODO properly throw error somewhere
             res.status(500);
         }
         return json;
