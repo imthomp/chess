@@ -10,15 +10,15 @@ public class MemoryUserDAO implements UserDAO {
     private HashMap<String,UserData> users;
 
     public MemoryUserDAO() {
-        users = new HashMap<String,UserData>();
+        users = new HashMap<>();
     }
 
-    public void createUser(UserData u) throws DataAccessException {
+    public void createUser(UserData u) {
         // Insert user into database
         users.put(u.username(), u);
     }
 
-    public UserData getUser(UserData u) throws DataAccessException {
+    public UserData getUser(UserData u) {
         // Get user from database
         if (users == null) {
             return null;
@@ -26,7 +26,7 @@ public class MemoryUserDAO implements UserDAO {
         return users.get(u.username());
     }
 
-    public boolean checkUserCredentials(UserData u) throws DataAccessException {
+    public boolean checkUserCredentials(UserData u) {
         String username = u.username();
         String password = u.password();
         UserData user = users.get(username);
@@ -38,7 +38,7 @@ public class MemoryUserDAO implements UserDAO {
 
     public void clear() throws DataAccessException {
         // Clear database
-        users = new HashMap<String,UserData>();
+        users = new HashMap<>();
     }
 
 }
