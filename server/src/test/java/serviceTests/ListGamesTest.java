@@ -4,7 +4,6 @@ import dataAccess.exception.DataAccessException;
 import dataAccess.object.memory.MemoryAuthDAO;
 import dataAccess.object.memory.MemoryGameDAO;
 import dataAccess.object.protocol.AuthDAO;
-import dataAccess.object.protocol.GameDAO;
 import org.junit.jupiter.api.Test;
 import result.ListGamesResult;
 import service.ListGamesService;
