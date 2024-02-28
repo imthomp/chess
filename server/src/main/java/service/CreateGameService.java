@@ -4,7 +4,6 @@ import dataAccess.exception.DataAccessException;
 import dataAccess.object.protocol.AuthDAO;
 import dataAccess.object.protocol.GameDAO;
 import model.AuthData;
-import model.GameData;
 import result.GameResult;
 
 import java.util.UUID;
@@ -26,7 +25,7 @@ public class CreateGameService {
             else if (gameName == null) {
                 throw new DataAccessException("bad request");
             }
-            Integer gameID = UUID.randomUUID().hashCode();
+            Integer gameID = Math.abs(UUID.randomUUID().hashCode());
             gameDAO.createGame(gameID, gameName);
             return new GameResult(gameID, null);
         } catch (DataAccessException e) {
