@@ -7,7 +7,6 @@ import service.LogoutService;
 import com.google.gson.Gson;
 import spark.Request;
 import spark.Response;
-import java.util.Objects;
 
 public class LogoutHandler {
     private final AuthDAO authDAO;

@@ -2,6 +2,7 @@ package service;
 
 import dataAccess.exception.DataAccessException;
 import dataAccess.object.protocol.AuthDAO;
+import model.AuthData;
 import result.MessageResult;
 
 public class LogoutService {
@@ -12,10 +13,8 @@ public class LogoutService {
     }
     public MessageResult logout(String authToken) {
         try {
-            if (authToken == null) {
-                throw new DataAccessException("unauthorized");
-            }
-            if (authDAO.getAuth(authToken) == null) {
+            AuthData authData = authDAO.getAuth(authToken);
+            if (authToken == null || authData == null) {
                 throw new DataAccessException("unauthorized");
             }
             authDAO.deleteAuth(authToken);
