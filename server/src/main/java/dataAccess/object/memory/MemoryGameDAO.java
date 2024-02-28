@@ -4,44 +4,39 @@ import dataAccess.exception.DataAccessException;
 import dataAccess.object.protocol.GameDAO;
 import model.GameData;
 
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class MemoryGameDAO implements GameDAO {
     private HashMap<Integer, GameData> games;
 
     public MemoryGameDAO() {
-        games = new HashMap<Integer, GameData>();
+        games = new HashMap<>();
     }
 
-    public void createGame(Integer gameID, String gameName) throws DataAccessException {
+    public void createGame(Integer gameID, String gameName) {
         // Create game in database
         GameData game = new GameData(gameID, null, null, gameName, null);
         games.put(gameID, game);
     }
 
-    public GameData getGame(int gameID) throws DataAccessException {
+    public GameData getGame(int gameID) {
         // Get game from database
         return games.get(gameID);
     }
 
-    public HashSet<GameData> listGames(String username) throws DataAccessException {
+    public Collection<GameData> listGames() {
         // Get all games from database for a specific user
-        HashSet <GameData> userGames = new HashSet<GameData>();
-        for (GameData g : games.values()) {
-            if (g.whiteUsername().equals(username) || g.blackUsername().equals(username)) {
-                userGames.add(g);
-            }
-        }
-        return userGames;
+        return games.values();
     }
 
     public void clear() throws DataAccessException {
         // Clear database
-        games = new HashMap<Integer, GameData>();
+        games = new HashMap<>();
     }
 
-    public void updateGame(GameData g) throws DataAccessException {
+    public void updateGame(GameData g) {
         // Update game in database
+        games.put(g.gameID(), g);
     }
 }
