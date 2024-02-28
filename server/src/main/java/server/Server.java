@@ -17,7 +17,7 @@ public class Server {
         UserDAO userDAO = new MemoryUserDAO();
 
         // Register your endpoints and handle exceptions here.
-        Spark.delete("/db", (req, res) -> new ClearHandler(authDAO, gameDAO, userDAO).handleClear(req, res));
+        Spark.delete("/db", (req, res) -> new ClearHandler(authDAO, gameDAO, userDAO).handleClear(res));
         Spark.post("/user", (req, res) -> new RegisterHandler(authDAO, userDAO).handleRegister(req, res));
         Spark.post("/session", (req, res) -> new LoginHandler(authDAO, userDAO).handleLogin(req, res));
         Spark.delete("/session", (req, res) -> new LogoutHandler(authDAO).handleLogout(req, res));
