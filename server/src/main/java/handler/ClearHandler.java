@@ -5,7 +5,6 @@ import result.MessageResult;
 import service.ClearService;
 
 import com.google.gson.Gson;
-import spark.Request;
 import spark.Response;
 
 public class ClearHandler {
@@ -19,7 +18,7 @@ public class ClearHandler {
         this.userDAO = userDAO;
     }
 
-    public Object handleClear(Request req, Response res) {
+    public Object handleClear(Response res) {
         ClearService service = new ClearService(authDAO, gameDAO, userDAO);
         MessageResult result = service.clear();
 
