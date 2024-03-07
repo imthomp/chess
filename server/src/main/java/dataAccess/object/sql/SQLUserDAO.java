@@ -4,8 +4,6 @@ import dataAccess.exception.DataAccessException;
 import dataAccess.object.protocol.UserDAO;
 import model.UserData;
 
-import java.util.HashMap;
-
 public class SQLUserDAO implements UserDAO {
     public void createUser(UserData u) {
 
