@@ -36,29 +36,11 @@ public class DatabaseManager {
     /**
      * Creates the database if it does not already exist.
      */
-    static void createDatabase() throws DataAccessException {
+    public static void createDatabase() throws DataAccessException {
         try {
             var statement = "CREATE DATABASE IF NOT EXISTS " + databaseName;
             var conn = DriverManager.getConnection(connectionUrl, user, password);
             try (var preparedStatement = conn.prepareStatement(statement)) {
-                preparedStatement.executeUpdate();
-            }
-            createTables();
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
-    }
-
-    static void createTables() throws DataAccessException {
-        try {
-            var conn = getConnection();
-            try (var preparedStatement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS users (username VARCHAR(255) PRIMARY KEY, password VARCHAR(255))")) {
-                preparedStatement.executeUpdate();
-            }
-            try (var preparedStatement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS games (gameID INT PRIMARY KEY, gameName VARCHAR(255))")) {
-                preparedStatement.executeUpdate();
-            }
-            try (var preparedStatement = conn.prepareStatement("CREATE TABLE IF NOT EXISTS auths (authToken VARCHAR(255) PRIMARY KEY, username VARCHAR(255))")) {
                 preparedStatement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -78,7 +60,7 @@ public class DatabaseManager {
      * }
      * </code>
      */
-    static Connection getConnection() throws DataAccessException {
+    public static Connection getConnection() throws DataAccessException {
         try {
             var conn = DriverManager.getConnection(connectionUrl, user, password);
             conn.setCatalog(databaseName);
