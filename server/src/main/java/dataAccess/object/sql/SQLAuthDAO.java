@@ -80,6 +80,10 @@ public class SQLAuthDAO implements AuthDAO {
     };
 
     private void configureDatabase() throws DataAccessException {
+        manageConnection(createStatements);
+    }
+
+    static void manageConnection(String[] createStatements) throws DataAccessException {
         DatabaseManager.createDatabase();
         try (var conn = DatabaseManager.getConnection()) {
             for (var statement : createStatements) {
