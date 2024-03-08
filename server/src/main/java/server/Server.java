@@ -30,8 +30,6 @@ public class Server {
             Spark.awaitInitialization();
             return Spark.port();
         } catch (DataAccessException e) {
-            System.out.println("Failed to initialize: " + e.getMessage());
-//            e.printStackTrace();
             return Spark.port();
         }
     }
