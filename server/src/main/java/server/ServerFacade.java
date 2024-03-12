@@ -1,4 +1,4 @@
-package ui;
+package server;
 
 public class ServerFacade {
     int port;
