@@ -208,10 +208,11 @@ public class ChessPiece {
 
     @Override
     public String toString() {
-        if (getTeamColor() == ChessGame.TeamColor.WHITE) {
-            return type.toString().substring(0, 1);
-        } else {
+        if (type == PieceType.KNIGHT) {
+            return type.toString().substring(1, 2);
+        } else if (type == PieceType.PAWN) {
             return type.toString().substring(0, 1).toLowerCase();
         }
+        return type.toString().substring(0, 1);
     }
 }
