@@ -1,4 +1,4 @@
-package ui;
+package client;
 
 import chess.ChessBoard;
 import chess.ChessGame;
@@ -8,7 +8,7 @@ import chess.ChessPosition;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
-import static ui.EscapeSequences.*;
+import static client.EscapeSequences.*;
 
 public class ChessArtist {
 
