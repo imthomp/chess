@@ -14,16 +14,19 @@ public class ChessArtist {
 
     //private static final int SQUARE_SIZE_IN_CHARS = 3;
     public static final String EMPTY_SQUARE = "   ";
+    static ChessBoard board = new ChessBoard();
 
-    public static void main(String[] args) {
-        ChessBoard board = new ChessBoard();
-        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
-        drawBoardPerspectives(out, board);
+    public ChessArtist() {
         board.resetBoard();
-        drawBoardPerspectives(out, board);
     }
 
-    public static void drawBoardPerspectives(PrintStream out, ChessBoard board) {
+    public static void main(String[] args) {
+        var out = new PrintStream(System.out, true, StandardCharsets.UTF_8);
+        drawBoardPerspectives(out);
+    }
+
+    public static void drawBoardPerspectives(PrintStream out) {
+        board.resetBoard();
         drawChessBoard(out, board, ChessGame.TeamColor.WHITE);
         drawChessBoard(out, board, ChessGame.TeamColor.BLACK);
     }
@@ -41,6 +44,9 @@ public class ChessArtist {
             }
         }
         drawRowHeader(out, perspective);
+        out.print(RESET_TEXT_BOLD_FAINT);
+        out.print(SET_TEXT_COLOR_WHITE);
+        out.print(RESET_BG_COLOR);
     }
 
     private static void drawColHeader(PrintStream out, int row) {
