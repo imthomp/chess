@@ -2,6 +2,7 @@ package clientTests;
 
 import exception.ResponseException;
 import model.GameData;
+import model.JoinGameObject;
 import org.junit.jupiter.api.*;
 import server.Server;
 import server.ServerFacade;
@@ -20,7 +21,8 @@ public class ServerFacadeTests {
     }
 
     @AfterAll
-    static void stopServer() {
+    static void stopServer() throws ResponseException {
+        facade.clear();
         server.stop();
     }
 
@@ -34,9 +36,7 @@ public class ServerFacadeTests {
     public void negativeRegisterTest() throws ResponseException {
         facade.clear();
         facade.register("test", "test", "test");
-        Assertions.assertThrows(ResponseException.class, () -> {
-            facade.register("test", "test", "test");
-        });
+        Assertions.assertThrows(ResponseException.class, () -> facade.register("test", "test", "test"));
     }
 
     @Test
@@ -44,15 +44,15 @@ public class ServerFacadeTests {
         facade.clear();
         String authToken = facade.register("test", "test", "test");
         facade.logout(authToken);
-        facade.login("test", "test");
+        Assertions.assertDoesNotThrow(() -> {
+            facade.login("test", "test");
+        });
     }
 
     @Test
     public void negativeLoginTest() throws ResponseException {
         facade.clear();
-        Assertions.assertThrows(ResponseException.class, () -> {
-            facade.login("test", "test");
-        });
+        Assertions.assertThrows(ResponseException.class, () -> facade.login("test", "test"));
     }
 
     @Test
@@ -60,15 +60,15 @@ public class ServerFacadeTests {
         facade.clear();
         String authToken = facade.register("test", "test", "test");
         GameData game = new GameData(0, null, null, "test", null);
-        facade.createGame(game, authToken);
+        Assertions.assertDoesNotThrow(() -> {
+            facade.createGame(game, authToken);
+        });
     }
 
     @Test
     public void negativeCreateGameTest() {
         GameData game = new GameData(0, null, null, "test", null);
-        Assertions.assertThrows(ResponseException.class, () -> {
-            facade.createGame(game, "test");
-        });
+        Assertions.assertThrows(ResponseException.class, () -> facade.createGame(game, "test"));
     }
 
     @Test
@@ -77,21 +77,19 @@ public class ServerFacadeTests {
         String authToken = facade.register("test", "test", "test");
         GameData game = new GameData(1, null, null, "test", null);
         int ID = facade.createGame(game, authToken);
-        game = new GameData(ID, null, null, "test", null);
-        facade.joinGame(game, authToken);
+        var joinGameObject = new JoinGameObject(ID, "white");
+        Assertions.assertDoesNotThrow(() -> facade.joinGame(joinGameObject, authToken));
     }
 
     @Test
     public void negativeJoinGameTest() {
-        GameData game = new GameData(0, null, null, "test", null);
-        Assertions.assertThrows(ResponseException.class, () -> {
-            facade.joinGame(game, "test");
-        });
+        var joinGameObject = new JoinGameObject(0, "white");
+        Assertions.assertThrows(ResponseException.class, () -> facade.joinGame(joinGameObject, "test"));
     }
 
     @Test
-    public void clearTest() throws ResponseException {
-        facade.clear();
+    public void clearTest() {
+        Assertions.assertDoesNotThrow(() -> facade.clear());
     }
 
     @Test
@@ -100,14 +98,14 @@ public class ServerFacadeTests {
         String authToken = facade.register("test", "test", "test");
         GameData game = new GameData(0, null, null, "test", null);
         facade.createGame(game, authToken);
-        facade.listGames(authToken);
+        Assertions.assertDoesNotThrow(() -> {
+            facade.listGames(authToken);
+        });
     }
 
     @Test
     public void negativeListGamesTest() {
-        Assertions.assertThrows(ResponseException.class, () -> {
-            facade.listGames("test");
-        });
+        Assertions.assertThrows(ResponseException.class, () -> facade.listGames("test"));
     }
 
     @Test
@@ -116,15 +114,13 @@ public class ServerFacadeTests {
         String authToken = facade.register("test", "test", "test");
         GameData game = new GameData(1, null, null, "test", null);
         int ID = facade.createGame(game, authToken);
-        game = new GameData(ID, null, null, "test", null);
-        facade.joinGame(game, authToken);
+        var joinGameObject = new JoinGameObject(ID, null);
+        Assertions.assertDoesNotThrow(() -> facade.joinGame(joinGameObject, authToken));
     }
 
     @Test
     public void negativeObserveGameTest() {
         GameData game = new GameData(0, null, null, "test", null);
-        Assertions.assertThrows(ResponseException.class, () -> {
-            facade.observeGame(game, "test");
-        });
+        Assertions.assertThrows(ResponseException.class, () -> facade.observeGame(game, "test"));
     }
 }
