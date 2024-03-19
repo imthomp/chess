@@ -3,7 +3,7 @@ package handler;
 import dataAccess.object.protocol.AuthDAO;
 import dataAccess.object.protocol.GameDAO;
 import result.MessageResult;
-import server.JoinGameObject;
+import model.JoinGameObject;
 import service.JoinGameService;
 
 import com.google.gson.Gson;
