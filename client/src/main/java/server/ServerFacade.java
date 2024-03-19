@@ -47,6 +47,11 @@ public class ServerFacade {
         this.makeRequest("PUT", path, game, JoinGameObject.class, authToken);
     }
 
+    public void observeGame(GameData game, String authToken) throws ResponseException {
+        var path = "/game";
+        this.makeRequest("PUT", path, game, JoinGameObject.class, authToken);
+    }
+
     public void clear() throws ResponseException {
         var path = "/db";
         this.makeRequest("DELETE", path, null, null, null);

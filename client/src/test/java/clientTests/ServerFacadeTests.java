@@ -110,4 +110,21 @@ public class ServerFacadeTests {
         });
     }
 
+    @Test
+    public void positiveObserveGameTest() throws ResponseException {
+        facade.clear();
+        String authToken = facade.register("test", "test", "test");
+        GameData game = new GameData(1, null, null, "test", null);
+        int ID = facade.createGame(game, authToken);
+        game = new GameData(ID, null, null, "test", null);
+        facade.joinGame(game, authToken);
+    }
+
+    @Test
+    public void negativeObserveGameTest() {
+        GameData game = new GameData(0, null, null, "test", null);
+        Assertions.assertThrows(ResponseException.class, () -> {
+            facade.observeGame(game, "test");
+        });
+    }
 }

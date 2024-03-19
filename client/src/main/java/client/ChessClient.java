@@ -111,6 +111,10 @@ public class ChessClient {
                 var newGameData = new GameData(id, game.whiteUsername(), username, game.gameName(), game.game());
                 server.joinGame(newGameData, authToken);
             }
+            PrintStream out = System.out;
+            ChessArtist.drawBoardPerspectives(out, game.game().getBoard());
+
+            return String.format("You joined game %s as %s.", id, playerColor);
         }
         throw new ResponseException(400, "Expected: <game id> [WHITE|BLACK|<empty>]");
     }
@@ -123,9 +127,13 @@ public class ChessClient {
             if (game == null) {
                 throw new ResponseException(400, "Game not found");
             }
+            var newGameData = new GameData(id, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
+            server.observeGame(newGameData, authToken);
+
             PrintStream out = System.out;
             ChessArtist.drawBoardPerspectives(out, game.game().getBoard());
-            return String.format("You are observing game %d", id);
+
+            return String.format("You are observing game %s.", id);
         }
         throw new ResponseException(400, "Expected: <game id>");
     }
