@@ -4,10 +4,14 @@ import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Objects;
 
-import com.google.gson.Gson;
 import exception.ResponseException;
 import model.GameData;
+import model.JoinGameObject;
 import server.ServerFacade;
+import chess.ChessGame;
+import chess.ChessBoard;
+
+import static client.EscapeSequences.*;
 
 public class ChessClient {
     private String username = null;
@@ -66,8 +70,11 @@ public class ChessClient {
 
     public String createGame(String... params) throws ResponseException {
         assertSignedIn();
+        ChessGame chessGame = new ChessGame();
+        ChessBoard chessBoard = chessGame.getBoard();
+        chessBoard.resetBoard();
         if (params.length >= 1) {
-            var game = new GameData(0, null, null, params[0], null);
+            var game = new GameData(0, null, null, params[0], chessGame);
             server.createGame(game, authToken);
             return String.format("You created game %s.", params[0]);
         }
@@ -77,46 +84,33 @@ public class ChessClient {
     public String listGames() throws ResponseException {
         assertSignedIn();
         var games = server.listGames(authToken);
-        var result = new StringBuilder();
-        var gson = new Gson();
-        for (var game : games) {
-            result.append(gson.toJson(game)).append('\n');
+        if (games == null) {
+            return "No games found.";
+        } else if (games.length == 0) {
+            return "No games found.";
         }
-        return result.toString();
+        var sb = new StringBuilder();
+        for (var game : games) {
+            sb.append(String.format("Game %d: %s, %s vs. %s\n", game.gameID(), game.gameName(), game.whiteUsername(), game.blackUsername()));
+        }
+        return sb.toString();
     }
 
     public String joinGame(String... params) throws ResponseException {
         assertSignedIn();
         if (params.length >= 1) {
-            // server takes in String authToken, String playerColor, Integer gameID
             var id = Integer.parseInt(params[0]);
+            var playerColor = (params.length >= 2) ? params[1] : null;
             var game = getGame(id);
-            if (game == null) {
-                throw new ResponseException(400, "Game not found");
-            }
-            var playerColor = (params.length >= 2) ? params[1] : "";
-            if (playerColor == null) {
-                var newGameData = new GameData(id, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
-                server.joinGame(newGameData, authToken);
-            } else if (Objects.equals(playerColor, "white")) {
-                if (game.whiteUsername() != null) {
-                    throw new ResponseException(400, "White already taken");
-                }
-                var newGameData = new GameData(id, username, game.blackUsername(), game.gameName(), game.game());
-                server.joinGame(newGameData, authToken);
-            } else if (Objects.equals(playerColor, "BLACK")) {
-                if (game.blackUsername() != null) {
-                    throw new ResponseException(400, "Black already taken");
-                }
-                var newGameData = new GameData(id, game.whiteUsername(), username, game.gameName(), game.game());
-                server.joinGame(newGameData, authToken);
-            }
-            PrintStream out = System.out;
-            ChessArtist.drawBoardPerspectives(out, game.game().getBoard());
+            var joinGameObject = new JoinGameObject(game.gameID(), playerColor);
+            server.joinGame(joinGameObject, authToken);
 
-            return String.format("You joined game %s as %s.", id, playerColor);
+            PrintStream out = System.out;
+            ChessArtist.drawBoardPerspectives(out);
+
+            return String.format("You joined %s.", game.gameName());
         }
-        throw new ResponseException(400, "Expected: <game id> [WHITE|BLACK|<empty>]");
+        throw new ResponseException(400, "Expected: <game id> [white|black|<empty>]");
     }
 
     public String observeGame(String... params) throws ResponseException {
@@ -131,9 +125,9 @@ public class ChessClient {
             server.observeGame(newGameData, authToken);
 
             PrintStream out = System.out;
-            ChessArtist.drawBoardPerspectives(out, game.game().getBoard());
+            ChessArtist.drawBoardPerspectives(out);
 
-            return String.format("You are observing game %s.", id);
+            return String.format("You are observing %s.", newGameData.gameName());
         }
         throw new ResponseException(400, "Expected: <game id>");
     }
@@ -161,18 +155,16 @@ public class ChessClient {
                     register <USERNAME> <PASSWORD> <EMAIL> - to create an account
                     login <USERNAME> <PASSWORD> - to play chess
                     quit - playing chess
-                    help - with possible commands
-                    """;
+                    help - with possible commands""";
         }
         return """
                 create <NAME> - a game
                 list - games
-                join <ID> [WHITE|BLACK|<empty>]
+                join <ID> [white|black|<empty>]
                 observe <ID>
                 logout - when you are done
                 quit - playing chess
-                help - with possible commands
-                """;
+                help - with possible commands""";
     }
 
     private void assertSignedIn() throws ResponseException {

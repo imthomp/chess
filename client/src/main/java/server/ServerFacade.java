@@ -42,9 +42,9 @@ public class ServerFacade {
         return gameReturned.gameID();
     }
 
-    public void joinGame(GameData game, String authToken) throws ResponseException {
+    public void joinGame(JoinGameObject joinGameObject, String authToken) throws ResponseException {
         var path = "/game";
-        this.makeRequest("PUT", path, game, JoinGameObject.class, authToken);
+        this.makeRequest("PUT", path, joinGameObject, JoinGameObject.class, authToken);
     }
 
     public void observeGame(GameData game, String authToken) throws ResponseException {
@@ -59,9 +59,9 @@ public class ServerFacade {
 
     public GameData[] listGames(String authToken) throws ResponseException {
         var path = "/game";
-        record listGameResponse(GameData[] game) {}
+        record listGameResponse(GameData[] games) {}
         var response = this.makeRequest("GET", path, null, listGameResponse.class, authToken);
-        return response.game();
+        return response.games();
     }
 
     private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
