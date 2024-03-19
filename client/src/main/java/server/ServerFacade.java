@@ -2,7 +2,9 @@ package server;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
+import model.AuthData;
 import model.GameData;
+import model.JoinGameObject;
 import model.UserData;
 
 import java.io.*;
@@ -15,51 +17,58 @@ public class ServerFacade {
         this.serverUrl = serverUrl;
     }
 
-    public void register(String username, String password, String email) throws ResponseException {
-        var path = "/user";
-        var user = new UserData(username, password, email);
-        this.makeRequest("POST", path, user, UserData.class);
+    public String register(String username, String password, String email) throws ResponseException {
+        String path = "/user";
+        UserData user = new UserData(username, password, email);
+        AuthData auth = this.makeRequest("POST", path, user, AuthData.class, null);
+        return auth.authToken();
     }
 
-    public void login(String username, String password) throws ResponseException {
-        var path = "/session";
+    public String login(String username, String password) throws ResponseException {
+        String path = "/session";
         UserData user = new UserData(username, password, null);
-        this.makeRequest("POST", path, user, UserData.class);
+        AuthData auth = this.makeRequest("POST", path, user, AuthData.class, null);
+        return auth.authToken();
     }
 
-    public void logout() throws ResponseException {
+    public void logout(String authToken) throws ResponseException {
         var path = "/session";
-        this.makeRequest("DELETE", path, null, null);
+        this.makeRequest("DELETE", path, null, null, authToken);
     }
 
-    public void createGame(GameData game) throws ResponseException {
+    public int createGame(GameData game, String authToken) throws ResponseException {
         var path = "/game";
-        this.makeRequest("POST", path, game, GameData.class);
+        GameData gameReturned = this.makeRequest("POST", path, game, GameData.class, authToken);
+        return gameReturned.gameID();
     }
 
-    public void joinGame(GameData game) throws ResponseException {
+    public void joinGame(GameData game, String authToken) throws ResponseException {
         var path = "/game";
-        this.makeRequest("PUT", path, game, null);
+        this.makeRequest("PUT", path, game, JoinGameObject.class, authToken);
     }
 
     public void clear() throws ResponseException {
         var path = "/db";
-        this.makeRequest("DELETE", path, null, null);
+        this.makeRequest("DELETE", path, null, null, null);
     }
 
-    public GameData[] listGames() throws ResponseException {
+    public GameData[] listGames(String authToken) throws ResponseException {
         var path = "/game";
-        record listGameResponse(GameData[] game) {        }
-        var response = this.makeRequest("GET", path, null, listGameResponse.class);
+        record listGameResponse(GameData[] game) {}
+        var response = this.makeRequest("GET", path, null, listGameResponse.class, authToken);
         return response.game();
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
             http.setDoOutput(true);
+
+            if (authToken != null) {
+                http.addRequestProperty("authorization", authToken);
+            }
 
             writeBody(request, http);
             http.connect();
@@ -70,12 +79,11 @@ public class ServerFacade {
         }
     }
 
-
     private static void writeBody(Object request, HttpURLConnection http) throws IOException {
         if (request != null) {
             http.addRequestProperty("Content-Type", "application/json");
             String reqData = new Gson().toJson(request);
-            try (OutputStream reqBody = http.getOutputStream()) {
+            try (var reqBody = http.getOutputStream()) {
                 reqBody.write(reqData.getBytes());
             }
         }
