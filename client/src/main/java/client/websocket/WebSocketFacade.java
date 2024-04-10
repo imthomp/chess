@@ -59,4 +59,5 @@ public class WebSocketFacade extends Endpoint {
 
     public void resign(String authToken) throws ResponseException {
 
+    }
 }
