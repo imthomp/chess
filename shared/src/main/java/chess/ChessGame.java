@@ -13,8 +13,11 @@ public class ChessGame {
     private ChessBoard board;
     private TeamColor teamTurn;
 
+    public boolean gameIsDone = false;
+
     public ChessGame() {
         board = new ChessBoard();
+        board.resetBoard();
         teamTurn = TeamColor.WHITE;
     }
 
@@ -161,7 +164,12 @@ public class ChessGame {
                 }
             }
         }
+        gameIsDone = true;
         return true;
+    }
+
+    public void resign() {
+        gameIsDone = true;
     }
 
     /**
