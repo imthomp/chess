@@ -2,7 +2,6 @@ package client;
 
 import java.io.PrintStream;
 import java.util.Arrays;
-import java.util.Objects;
 
 import exception.ResponseException;
 import model.GameData;
@@ -10,21 +9,22 @@ import model.JoinGameObject;
 import server.ServerFacade;
 import chess.ChessGame;
 import chess.ChessBoard;
-
-import static client.EscapeSequences.*;
+import client.websocket.NotificationHandler;
+import client.websocket.WebSocketFacade;
 
 public class ChessClient {
     private String username = null;
     private final ServerFacade server;
-    String serverUrl;
+    private final String serverUrl;
+    private final NotificationHandler notificationHandler;
+    private WebSocketFacade ws;
     private State state = State.LOGGED_OUT;
-    Repl repl;
     private String authToken = null;
 
-    public ChessClient (String serverUrl, Repl repl) {
+    public ChessClient (String serverUrl, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
-        this.repl = repl;
+        this.notificationHandler = notificationHandler;
     }
 
     public String eval(String input) {
@@ -108,6 +108,9 @@ public class ChessClient {
             PrintStream out = System.out;
             ChessArtist.drawBoardPerspectives(out);
 
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            ws.joinPlayer(username);
+
             return String.format("You joined %s.", game.gameName());
         }
         throw new ResponseException(400, "Expected: <game id> [white|black|<empty>]");
@@ -126,6 +129,9 @@ public class ChessClient {
 
             PrintStream out = System.out;
             ChessArtist.drawBoardPerspectives(out);
+
+            ws = new WebSocketFacade(serverUrl, notificationHandler);
+            ws.joinObserver(username);
 
             return String.format("You are observing %s.", newGameData.gameName());
         }
