@@ -32,7 +32,6 @@ public class JoinGameService {
                 GameData newGameData = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
                 gameDAO.updateGame(newGameData);
             }
-            //TODO uppercase or lowercase?
             else if (Objects.equals(playerColor, "WHITE")) {
                 if (gameData.whiteUsername() != null) {
                     throw new DataAccessException("already taken");
@@ -40,7 +39,6 @@ public class JoinGameService {
                 GameData newGameData = new GameData(gameID, username, gameData.blackUsername(), gameData.gameName(), gameData.game());
                 gameDAO.updateGame(newGameData);
             }
-            //TODO uppercase or lowercase?
             else if (playerColor.equals("BLACK")) {
                 if (gameData.blackUsername() != null) {
                     throw new DataAccessException("already taken");

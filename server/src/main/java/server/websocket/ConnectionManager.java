@@ -9,18 +9,9 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
-    //TODO add multiple lobby functionality
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
-//TODO     public final ConcurrentHashMap<int, ConcurrentHashMap<String, Connection>> connections = new ConcurrentHashMap<>();
 
     public void add(String authToken, Session session) {
-//TODO    public void add(String authToken, int gameID, Session) {
-//        if (connections.get(gameID) == null) {
-//            ConcurrentHashMap<String, Connection> map = new ConcurrentHashMap<>();
-//            map.put(authToken, session);
-//            connections.put(gameID, map);
-//            // change how I access it later
-//        }
         var connection = new Connection(authToken, session);
         connections.put(authToken, connection);
     }
