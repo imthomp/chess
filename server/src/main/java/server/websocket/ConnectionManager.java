@@ -11,10 +11,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConnectionManager {
     //TODO add multiple lobby functionality
     public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
-//     public final ConcurrentHashMap<int, ConcurrentHashMap<String, Connection>> connections = new ConcurrentHashMap<>();
+//TODO     public final ConcurrentHashMap<int, ConcurrentHashMap<String, Connection>> connections = new ConcurrentHashMap<>();
 
     public void add(String authToken, Session session) {
-//    public void add(String authToken, int gameID, Session) {
+//TODO    public void add(String authToken, int gameID, Session) {
 //        if (connections.get(gameID) == null) {
 //            ConcurrentHashMap<String, Connection> map = new ConcurrentHashMap<>();
 //            map.put(authToken, session);
