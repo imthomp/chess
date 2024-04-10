@@ -42,48 +42,21 @@ public class WebSocketFacade extends Endpoint {
     }
 
     public void joinPlayer(String authToken) throws ResponseException {
-        try {
-            var action = new UserGameCommand(authToken);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
+
     }
 
     public void joinObserver(String authToken) throws ResponseException {
-        try {
-            var action = new UserGameCommand(authToken);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
+
     }
 
     public void makeMove(String move) throws ResponseException {
-        try {
-            var action = new UserGameCommand(move);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
+
     }
 
     public void leave(String authToken) throws ResponseException {
-        try {
-            var action = new UserGameCommand(authToken);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-            this.session.close();
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
+
     }
 
     public void resign(String authToken) throws ResponseException {
-        try {
-            var action = new UserGameCommand(authToken);
-            this.session.getBasicRemote().sendText(new Gson().toJson(action));
-        } catch (IOException ex) {
-            throw new ResponseException(500, ex.getMessage());
-        }
-    }
+
 }
