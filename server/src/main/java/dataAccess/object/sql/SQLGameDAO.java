@@ -1,5 +1,6 @@
 package dataAccess.object.sql;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataAccess.DatabaseManager;
 import dataAccess.exception.DataAccessException;
@@ -16,7 +17,8 @@ public class SQLGameDAO implements GameDAO {
     }
 
     public void createGame(Integer gameID, String gameName) throws DataAccessException {
-        GameData game = new GameData(gameID, null, null, gameName, null);
+        ChessGame chessGame = new ChessGame();
+        GameData game = new GameData(gameID, null, null, gameName, chessGame);
         String statement = "INSERT INTO game (gameID, gameData) VALUES (?, ?)";
         try (var conn = DatabaseManager.getConnection()) {
             try (var preparedStatement = conn.prepareStatement(statement)) {
