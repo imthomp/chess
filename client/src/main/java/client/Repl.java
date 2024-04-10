@@ -1,8 +1,11 @@
 package client;
 
+import client.websocket.NotificationHandler;
+import webSocketMessages.serverMessages.ServerMessage;
+
 import java.util.Scanner;
 
-public class Repl {
+public class Repl implements NotificationHandler{
     private final ChessClient client;
 
     public Repl (String serverUrl) {
@@ -28,6 +31,11 @@ public class Repl {
             }
         }
         System.out.println();
+    }
+
+    public void notify(ServerMessage notification) {
+        System.out.println(notification.getServerMessageType());
+        printPrompt();
     }
 
     private void printPrompt() {

@@ -4,6 +4,7 @@ import dataAccess.exception.DataAccessException;
 import dataAccess.object.protocol.*;
 import dataAccess.object.sql.*;
 import handler.*;
+import server.websocket.WebSocketHandler;
 import spark.*;
 
 public class Server {
@@ -17,6 +18,8 @@ public class Server {
             AuthDAO authDAO = new SQLAuthDAO();
             GameDAO gameDAO = new SQLGameDAO();
             UserDAO userDAO = new SQLUserDAO();
+
+            Spark.webSocket("/connect", WebSocketHandler.class);
 
             // Register your endpoints and handle exceptions here.
             Spark.delete("/db", (req, res) -> new ClearHandler(authDAO, gameDAO, userDAO).handleClear(res));
