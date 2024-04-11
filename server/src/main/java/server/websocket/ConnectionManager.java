@@ -9,23 +9,30 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConnectionManager {
-    public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
+     public final ConcurrentHashMap<Integer, ConcurrentHashMap<String, Connection>> connections = new ConcurrentHashMap<>();
 
-    public void add(String authToken, Session session) {
-        var connection = new Connection(authToken, session);
-        connections.put(authToken, connection);
+    public void add(String authToken, Session session, int gameID) {
+        if (connections.get(gameID) == null) {
+            ConcurrentHashMap<String, Connection> map = new ConcurrentHashMap<>();
+            Connection connection = new Connection(authToken, session);
+            map.put(authToken, connection);
+            connections.put(gameID, map);
+        } else {
+            Connection connection = new Connection(authToken, session);
+            connections.get(gameID).put(authToken, connection);
+        }
     }
 
-    public void remove(String authToken) {
-        connections.remove(authToken);
+    public void remove(String authToken, int gameID) {
+        connections.get(gameID).remove(authToken);
     }
 
-    public void notifyOthers(String excludeAuth, ServerMessage notification) throws IOException {
+    public void notifyOthers(String excludeAuth, ServerMessage message, int gameID) throws IOException {
         var removeList = new ArrayList<Connection>();
-        for (var c : connections.entrySet()) {
+        for (var c : connections.get(gameID).entrySet()) {
             if (c.getValue().session.isOpen()) {
                 if (!c.getKey().equals(excludeAuth)) {
-                    c.getValue().send(new Gson().toJson(notification));
+                    c.getValue().send(new Gson().toJson(message));
                 }
             } else {
                 removeList.add(c.getValue());
@@ -34,22 +41,22 @@ public class ConnectionManager {
 
         // Clean up any connections that were left open.
         for (var c : removeList) {
-            connections.remove(c.authToken);
+            connections.get(gameID).remove(c.authToken);
         }
     }
 
-    public void notifyAll(ServerMessage notification) throws IOException {
-        for (var c : connections.values()) {
+    public void notifyAll(ServerMessage message, int gameID) throws IOException {
+        for (var c : connections.get(gameID).values()) {
             if (c.session.isOpen()) {
-                c.send(new Gson().toJson(notification));
+                c.send(new Gson().toJson(message));
             }
         }
     }
 
-    public void notifyUser(String authToken, ServerMessage notification) throws IOException {
-        var c = connections.get(authToken);
+    public void notifyUser(String authToken, ServerMessage message, int gameID) throws IOException {
+        var c = connections.get(gameID).get(authToken);
         if (c != null && c.session.isOpen()) {
-            c.send(new Gson().toJson(notification));
+            c.send(new Gson().toJson(message));
         }
     }
 }

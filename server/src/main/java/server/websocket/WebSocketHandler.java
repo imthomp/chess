@@ -62,9 +62,9 @@ public class WebSocketHandler {
             Notification notification = new Notification(notificationMessage);
             LoadGame loadGame = new LoadGame(game);
 
-            connections.add(authToken, session);
-            connections.notifyUser(authToken, loadGame);
-            connections.notifyOthers(authToken, notification);
+            connections.add(authToken, session, gameID);
+            connections.notifyUser(authToken, loadGame, gameID);
+            connections.notifyOthers(authToken, notification, gameID);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -95,9 +95,9 @@ public class WebSocketHandler {
             Notification notification = new Notification(notificationMessage);
             LoadGame loadGame = new LoadGame(game);
 
-            connections.add(authToken, session);
-            connections.notifyUser(authToken, loadGame);
-            connections.notifyOthers(authToken, notification);
+            connections.add(authToken, session, gameID);
+            connections.notifyUser(authToken, loadGame, gameID);
+            connections.notifyOthers(authToken, notification, gameID);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -116,8 +116,8 @@ public class WebSocketHandler {
             String notificationMessage = username + " has left the game!";
             Notification notification = new Notification(notificationMessage);
 
-            connections.remove(authToken);
-            connections.notifyOthers(authToken, notification);
+            connections.remove(authToken, gameID);
+            connections.notifyOthers(authToken, notification, gameID);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -145,20 +145,20 @@ public class WebSocketHandler {
 
             if (chessGame.gameIsDone) {
                 var error = new Error("Game is done");
-                connections.notifyUser(authToken, error);
+                connections.notifyUser(authToken, error, gameID);
                 return;
             }
 
             var validMoves = chessGame.validMoves(move.getStartPosition());
             if (!validMoves.contains(move)) {
                 var error = new Error("Invalid move");
-                connections.notifyUser(authToken, error);
+                connections.notifyUser(authToken, error, gameID);
                 return;
             }
 
             if (chessGame.getTeamTurn() != playerColor) {
                 var error = new Error("Not your turn");
-                connections.notifyUser(authToken, error);
+                connections.notifyUser(authToken, error, gameID);
                 return;
             }
 
@@ -166,7 +166,7 @@ public class WebSocketHandler {
                 chessGame.makeMove(move);
             } catch (InvalidMoveException e) {
                 var error = new Error("Invalid move");
-                connections.notifyUser(authToken, error);
+                connections.notifyUser(authToken, error, gameID);
                 return;
             }
 
@@ -174,21 +174,21 @@ public class WebSocketHandler {
 
             String notificationMessage = username + " has made a move!";
             Notification notification = new Notification(notificationMessage);
-            connections.notifyOthers(authToken, notification);
+            connections.notifyOthers(authToken, notification, gameID);
 
             if (chessGame.isInCheck(opponentColor)) {
                 if (chessGame.isInCheckmate(opponentColor)) {
                     String checkmateMessage = username + " has checkmated " + opponentColor + "!";
                     Notification checkmateNotification = new Notification(checkmateMessage);
-                    connections.notifyAll(checkmateNotification);
+                    connections.notifyAll(checkmateNotification, gameID);
                 } else {
                     String checkMessage = username + " has put " + opponentColor + " in check!";
                     Notification checkNotification = new Notification(checkMessage);
-                    connections.notifyAll(checkNotification);
+                    connections.notifyAll(checkNotification, gameID);
                 }
             }
 
-            connections.notifyAll(new LoadGame(game));
+            connections.notifyAll(new LoadGame(game), gameID);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
@@ -206,13 +206,13 @@ public class WebSocketHandler {
 
             if (chessGame.gameIsDone) {
                 var error = new Error("Game is done");
-                connections.notifyUser(authToken, error);
+                connections.notifyUser(authToken, error, gameID);
                 return;
             }
 
             if (!Objects.equals(username, game.whiteUsername()) && !Objects.equals(username, game.blackUsername())) {
                 var error = new Error("Invalid resign request");
-                connections.notifyUser(authToken, error);
+                connections.notifyUser(authToken, error, gameID);
                 return;
             }
 
@@ -223,7 +223,7 @@ public class WebSocketHandler {
             String notificationMessage = username + " has resigned!";
             Notification notification = new Notification(notificationMessage);
 
-            connections.notifyAll(notification);
+            connections.notifyAll(notification, gameID);
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
