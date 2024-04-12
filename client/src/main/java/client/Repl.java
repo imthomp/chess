@@ -1,7 +1,9 @@
 package client;
 
 import client.websocket.NotificationHandler;
-import webSocketMessages.serverMessages.ServerMessage;
+import model.GameData;
+import webSocketMessages.serverMessages.*;
+import webSocketMessages.serverMessages.Error;
 
 import java.util.Scanner;
 
@@ -33,8 +35,21 @@ public class Repl implements NotificationHandler{
         System.out.println();
     }
 
-    public void notify(ServerMessage notification) {
-        System.out.println(notification.getServerMessageType());
+    public void notify(ServerMessage message) {
+        if (message.getServerMessageType() == ServerMessage.ServerMessageType.LOAD_GAME) {
+            LoadGame loadGame = (LoadGame) message;
+            GameData game = loadGame.getGame();
+
+        }
+        if (message.getServerMessageType() == ServerMessage.ServerMessageType.NOTIFICATION) {
+            Notification notification = (Notification) message;
+            System.out.println(notification.getMessage());
+        }
+        if (message.getServerMessageType() == ServerMessage.ServerMessageType.ERROR) {
+            Error error = (Error) message;
+            System.out.println(error.getMessage());
+
+        }
         printPrompt();
     }
 
