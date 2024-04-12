@@ -3,6 +3,8 @@ package client;
 import java.io.PrintStream;
 import java.util.Arrays;
 
+import chess.ChessMove;
+import chess.ChessPosition;
 import exception.ResponseException;
 import model.GameData;
 import model.JoinGameObject;
@@ -20,6 +22,8 @@ public class ChessClient {
     private WebSocketFacade ws;
     private State state = State.LOGGED_OUT;
     private String authToken = null;
+    private int currentGameID = -1;
+    private ChessGame.TeamColor currentPlayerColor = null;
 
     public ChessClient (String serverUrl, NotificationHandler notificationHandler) {
         server = new ServerFacade(serverUrl);
@@ -40,6 +44,11 @@ public class ChessClient {
                 case "join" -> joinGame(params);
                 case "observe" -> observeGame(params);
                 case "logout" -> logout();
+                case "move" -> makeMove(params);
+                case "leave" -> leave(params);
+                case "resign" -> resign(params);
+                case "redraw" -> redrawBoard();
+                case "highlight" -> highlightLegalMoves();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -70,6 +79,7 @@ public class ChessClient {
 
     public String createGame(String... params) throws ResponseException {
         assertSignedIn();
+
         ChessGame chessGame = new ChessGame();
         ChessBoard chessBoard = chessGame.getBoard();
         chessBoard.resetBoard();
@@ -83,6 +93,7 @@ public class ChessClient {
 
     public String listGames() throws ResponseException {
         assertSignedIn();
+
         var games = server.listGames(authToken);
         if (games == null) {
             return "No games found.";
@@ -98,18 +109,25 @@ public class ChessClient {
 
     public String joinGame(String... params) throws ResponseException {
         assertSignedIn();
+
         if (params.length >= 1) {
             var id = Integer.parseInt(params[0]);
-            var playerColor = (params.length >= 2) ? params[1] : null;
+            var playerColorString = (params.length >= 2) ? params[1] : null;
+            var playerColor = (playerColorString != null) ? ChessGame.TeamColor.valueOf(playerColorString.toUpperCase()) : null;
+            currentPlayerColor = playerColor;
             var game = getGame(id);
-            var joinGameObject = new JoinGameObject(game.gameID(), playerColor);
+            var joinGameObject = new JoinGameObject(game.gameID(), playerColorString);
             server.joinGame(joinGameObject, authToken);
+            state = State.IN_GAME;
+            currentGameID = id;
 
             PrintStream out = System.out;
-            ChessArtist.drawBoardPerspectives(out);
+            ChessBoard board = game.game().getBoard();
+            ChessArtist chessArtist = new ChessArtist(board);
+            chessArtist.drawChessBoard(out, playerColor);
 
             ws = new WebSocketFacade(serverUrl, notificationHandler);
-            ws.joinPlayer(username);
+            ws.joinPlayer(username, id, playerColor);
 
             return String.format("You joined %s.", game.gameName());
         }
@@ -118,6 +136,7 @@ public class ChessClient {
 
     public String observeGame(String... params) throws ResponseException {
         assertSignedIn();
+
         if (params.length >= 1) {
             var id = Integer.parseInt(params[0]);
             var game = getGame(id);
@@ -126,12 +145,16 @@ public class ChessClient {
             }
             var newGameData = new GameData(id, game.whiteUsername(), game.blackUsername(), game.gameName(), game.game());
             server.observeGame(newGameData, authToken);
+            state = State.IN_GAME;
+            currentGameID = id;
 
             PrintStream out = System.out;
-            ChessArtist.drawBoardPerspectives(out);
+            ChessBoard board = game.game().getBoard();
+            ChessArtist chessArtist = new ChessArtist(board);
+            chessArtist.drawChessBoard(out, ChessGame.TeamColor.WHITE);
 
             ws = new WebSocketFacade(serverUrl, notificationHandler);
-            ws.joinObserver(username);
+            ws.joinObserver(username, id);
 
             return String.format("You are observing %s.", newGameData.gameName());
         }
@@ -146,6 +169,81 @@ public class ChessClient {
         return "You logged out.";
     }
 
+    public String makeMove(String... params) throws ResponseException {
+        assertSignedIn();
+        assertInGame();
+
+        if (params.length >= 3) {
+            var id = Integer.parseInt(params[0]);
+            var row1 = params[1].charAt(0) - 'a';
+            var col1 = Integer.parseInt(params[2]);
+            var row2 = params[3].charAt(0) - 'a';
+            var col2 = Integer.parseInt(params[4]);
+            //var promotion = (params.length >= 6) ? params[5] : null;
+            var game = getGame(id);
+            if (game == null) {
+                throw new ResponseException(400, "Game not found");
+            }
+            var move = new ChessMove(new ChessPosition(row1, col1), new ChessPosition(row2, col2), null);
+            ws.makeMove(authToken, id, move);
+            return String.format("You made a move in %s.", game.gameName());
+        }
+        throw new ResponseException(400, "Expected: <game id> <x1> <y1> <x2> <y2>");
+    }
+
+    public String leave(String... params) throws ResponseException {
+        assertSignedIn();
+        assertInGame();
+
+        if (params.length >= 1) {
+            var id = Integer.parseInt(params[0]);
+            var game = getGame(id);
+            if (game == null) {
+                throw new ResponseException(400, "Game not found");
+            }
+            ws.leave(authToken, id);
+            state = State.LOGGED_IN;
+            currentGameID = -1;
+
+            return String.format("You left %s.", game.gameName());
+        }
+        throw new ResponseException(400, "Expected: <game id>");
+    }
+
+    public String resign(String... params) throws ResponseException {
+        assertSignedIn();
+        assertInGame();
+
+        if (params.length >= 1) {
+            var id = Integer.parseInt(params[0]);
+            var game = getGame(id);
+            if (game == null) {
+                throw new ResponseException(400, "Game not found");
+            }
+            ws.resign(authToken, id);
+            return String.format("You resigned from %s.", game.gameName());
+        }
+        throw new ResponseException(400, "Expected: <game id>");
+    }
+
+    public String redrawBoard() throws ResponseException {
+        PrintStream out = System.out;
+        var game = getGame(currentGameID);
+        ChessBoard board = game.game().getBoard();
+        ChessArtist chessArtist = new ChessArtist(board);
+        chessArtist.drawChessBoard(out, currentPlayerColor);
+        return "";
+    }
+
+    public String highlightLegalMoves() throws ResponseException {
+        PrintStream out = System.out;
+        var game = getGame(currentGameID);
+        ChessBoard board = game.game().getBoard();
+        ChessArtist chessArtist = new ChessArtist(board);
+        chessArtist.highlightLegalMoves(out, currentPlayerColor, null);
+        return "";
+    }
+
     private GameData getGame(int id) throws ResponseException {
         for (var game : server.listGames(authToken)) {
             if (game.gameID() == id) {
@@ -158,23 +256,39 @@ public class ChessClient {
     public String help() {
         if (state == State.LOGGED_OUT) {
             return """
-                    register <USERNAME> <PASSWORD> <EMAIL> - to create an account
-                    login <USERNAME> <PASSWORD> - to play chess
+                    register <USERNAME> <PASSWORD> <EMAIL> - register an account
+                    login <USERNAME> <PASSWORD> - login to chess
+                    quit - quit playing chess
+                    help - help with possible commands""";
+        }
+        if (state == State.IN_GAME) {
+            return """
+                    move <ID> <row1> <col1> <row2> <col2> - to make a move
+                    leave <ID> - to leave a game
+                    resign <ID> - to resign from a game
+                    redraw - to redraw the board
+                    highlight - to highlight legal moves
                     quit - playing chess
                     help - with possible commands""";
         }
         return """
-                create <NAME> - a game
-                list - games
-                join <ID> [white|black|<empty>]
-                observe <ID>
-                logout - when you are done
-                quit - playing chess
-                help - with possible commands""";
+                create <NAME> - create a game
+                list - list games
+                join <ID> [white|black|<empty>] - join a game
+                observe <ID> - observe a game
+                logout - logout of chess
+                quit - quit playing chess
+                help - help with possible commands""";
     }
 
     private void assertSignedIn() throws ResponseException {
         if (authToken == null) {
+            throw new ResponseException(400, "You must sign in");
+        }
+    }
+
+    private void assertInGame() throws ResponseException {
+        if (authToken == null || ws == null) { // to be fixed
             throw new ResponseException(400, "You must sign in");
         }
     }
