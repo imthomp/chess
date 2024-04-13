@@ -1,15 +1,19 @@
 package client.websocket;
 
+import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessMove;
+import client.ChessArtist;
 import com.google.gson.Gson;
 import exception.ResponseException;
+import model.GameData;
 import webSocketMessages.userCommands.*;
 import webSocketMessages.serverMessages.*;
 import webSocketMessages.serverMessages.Error;
 
 import javax.websocket.*;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -20,7 +24,7 @@ public class WebSocketFacade extends Endpoint {
     NotificationHandler notificationHandler;
 
 
-    public WebSocketFacade(String url, NotificationHandler notificationHandler) throws ResponseException {
+    public WebSocketFacade(String url, NotificationHandler notificationHandler, ChessBoard board, ChessGame.TeamColor playerColor) throws ResponseException {
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/connect");
@@ -30,25 +34,30 @@ public class WebSocketFacade extends Endpoint {
             this.session = container.connectToServer(this, socketURI);
 
             //set message handler
-            this.session.addMessageHandler((MessageHandler.Whole<String>) message -> {
-                ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
-                switch (serverMessage.getServerMessageType()) {
-                    case ERROR -> {
-                        ServerMessage error = new Gson().fromJson(message, Error.class);
-                        notificationHandler.notify(error);
-                    }
-                    case NOTIFICATION -> {
-                        ServerMessage notification = new Gson().fromJson(message, Notification.class);
-                        notificationHandler.notify(notification);
-                    }
-                    case LOAD_GAME -> {
-                        ServerMessage loadGame = new Gson().fromJson(message, LoadGame.class);
-                        notificationHandler.notify(loadGame);
+            this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+                @Override
+                public void onMessage(String message) {
+                    ServerMessage serverMessage = new Gson().fromJson(message, ServerMessage.class);
+                    // Isaih is the best
+                    switch (serverMessage.getServerMessageType()) {
+                        case ERROR -> {
+                            Error error = new Gson().fromJson(message, Error.class);
+                            notificationHandler.notify(error);
+                        }
+                        case NOTIFICATION -> {
+                            Notification notification = new Gson().fromJson(message, Notification.class);
+                            notificationHandler.notify(notification);
+                        }
+                        case LOAD_GAME -> {
+                            LoadGame loadGame = new Gson().fromJson(message, LoadGame.class);
+                            GameData game = loadGame.getGame();
 
+                            PrintStream out = System.out;
+                            ChessArtist chessArtist = new ChessArtist(game.game().getBoard());
+                            chessArtist.drawChessBoard(out, playerColor);
+                        }
                     }
                 }
-
-                //notificationHandler.notify(serverMessage);
             });
         } catch (DeploymentException | IOException | URISyntaxException ex) {
             throw new ResponseException(500, ex.getMessage());
