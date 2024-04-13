@@ -63,7 +63,7 @@ public class WebSocketHandler {
             LoadGame loadGame = new LoadGame(game);
 
             connections.add(authToken, session, gameID);
-            connections.notifyUser(authToken, loadGame, gameID);
+            session.getRemote().sendString(new Gson().toJson(loadGame));
             connections.notifyOthers(authToken, notification, gameID);
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -96,7 +96,7 @@ public class WebSocketHandler {
             LoadGame loadGame = new LoadGame(game);
 
             connections.add(authToken, session, gameID);
-            connections.notifyUser(authToken, loadGame, gameID);
+            session.getRemote().sendString(new Gson().toJson(loadGame));
             connections.notifyOthers(authToken, notification, gameID);
         } catch (Exception e) {
             System.out.println(e.getMessage());
