@@ -48,7 +48,7 @@ public class ChessClient {
                 case "leave" -> leave(params);
                 case "resign" -> resign(params);
                 case "redraw" -> redrawBoard();
-                case "highlight" -> highlightLegalMoves();
+                case "highlight" -> highlightLegalMoves(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -113,21 +113,17 @@ public class ChessClient {
         if (params.length >= 1) {
             var id = Integer.parseInt(params[0]);
             var playerColorString = (params.length >= 2) ? params[1] : null;
-            var playerColor = (playerColorString != null) ? ChessGame.TeamColor.valueOf(playerColorString.toUpperCase()) : null;
+            var playerColor = playerColorString.equals("white") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
             currentPlayerColor = playerColor;
             var game = getGame(id);
             var joinGameObject = new JoinGameObject(game.gameID(), playerColorString);
             server.joinGame(joinGameObject, authToken);
             state = State.IN_GAME;
             currentGameID = id;
-
-            PrintStream out = System.out;
             ChessBoard board = game.game().getBoard();
-            ChessArtist chessArtist = new ChessArtist(board);
-            chessArtist.drawChessBoard(out, playerColor);
 
-            ws = new WebSocketFacade(serverUrl, notificationHandler);
-            ws.joinPlayer(username, id, playerColor);
+            ws = new WebSocketFacade(serverUrl, notificationHandler, board, playerColor);
+            ws.joinPlayer(authToken, id, playerColor);
 
             return String.format("You joined %s.", game.gameName());
         }
@@ -147,14 +143,10 @@ public class ChessClient {
             server.observeGame(newGameData, authToken);
             state = State.IN_GAME;
             currentGameID = id;
-
-            PrintStream out = System.out;
             ChessBoard board = game.game().getBoard();
-            ChessArtist chessArtist = new ChessArtist(board);
-            chessArtist.drawChessBoard(out, ChessGame.TeamColor.WHITE);
 
-            ws = new WebSocketFacade(serverUrl, notificationHandler);
-            ws.joinObserver(username, id);
+            ws = new WebSocketFacade(serverUrl, notificationHandler, board, ChessGame.TeamColor.WHITE);
+            ws.joinObserver(authToken, id);
 
             return String.format("You are observing %s.", newGameData.gameName());
         }
@@ -175,16 +167,21 @@ public class ChessClient {
 
         if (params.length >= 3) {
             var id = Integer.parseInt(params[0]);
-            var row1 = params[1].charAt(0) - 'a';
-            var col1 = Integer.parseInt(params[2]);
-            var row2 = params[3].charAt(0) - 'a';
-            var col2 = Integer.parseInt(params[4]);
+            var col1 = params[1].charAt(0) + 1 - 'a';
+            var row1 = Integer.parseInt(params[2]);
+            var col2 = params[3].charAt(0) + 1 - 'a';
+            var row2 = Integer.parseInt(params[4]);
             //var promotion = (params.length >= 6) ? params[5] : null;
             var game = getGame(id);
             if (game == null) {
                 throw new ResponseException(400, "Game not found");
             }
             var move = new ChessMove(new ChessPosition(row1, col1), new ChessPosition(row2, col2), null);
+            try {
+                game.game().makeMove(move);
+            } catch (Exception ex) {
+                throw new ResponseException(400, ex.getMessage());
+            }
             ws.makeMove(authToken, id, move);
             return String.format("You made a move in %s.", game.gameName());
         }
@@ -235,13 +232,24 @@ public class ChessClient {
         return "";
     }
 
-    public String highlightLegalMoves() throws ResponseException {
-        PrintStream out = System.out;
-        var game = getGame(currentGameID);
-        ChessBoard board = game.game().getBoard();
-        ChessArtist chessArtist = new ChessArtist(board);
-        chessArtist.highlightLegalMoves(out, currentPlayerColor, null);
-        return "";
+    public String highlightLegalMoves(String... params) throws ResponseException {
+        if (params.length >= 2) {
+            var id = Integer.parseInt(params[0]);
+            var col = params[1].charAt(0) + 1 - 'a';
+            var row = Integer.parseInt(params[2]);
+
+            var game = getGame(id);
+            if (game == null) {
+                throw new ResponseException(400, "Game not found");
+            }
+
+            PrintStream out = System.out;
+            ChessBoard board = game.game().getBoard();
+            ChessArtist chessArtist = new ChessArtist(board);
+            chessArtist.highlightLegalMoves(out, currentPlayerColor, new ChessPosition(row, col));
+            return "";
+        }
+        throw new ResponseException(400, "Expected: <x> <y>");
     }
 
     private GameData getGame(int id) throws ResponseException {
