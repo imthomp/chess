@@ -29,6 +29,15 @@ public class ChessArtist {
     }
 
     public void highlightLegalMoves(PrintStream out, ChessGame.TeamColor perspective, ChessPosition position) {
+        try {
+            ChessGame chessGame = new ChessGame();
+            chessGame.setBoard(board);
+            chessGame.validMoves(position);
+        }
+        catch (Exception e) {
+            out.println("Invalid position");
+            return;
+        }
         out.println(SET_TEXT_BOLD);
         drawRowHeader(out, perspective);
         if (perspective == ChessGame.TeamColor.WHITE) {
@@ -48,15 +57,24 @@ public class ChessArtist {
 
     private void drawHighlightRow(PrintStream out, ChessBoard board, ChessGame.TeamColor perspective, int row, ChessPosition position) {
         drawColHeader(out, row);
-//        var validMoves = board.getPiece(position).validMoves(board, position);
+        ChessGame chessGame = new ChessGame();
+        chessGame.setBoard(board);
+        var validMoves = chessGame.validMoves(position);
         if (perspective == ChessGame.TeamColor.WHITE) {
             for (int col = 1; col <= ChessBoard.BOARD_SIZE; col++) {
-
-                drawHighlightSquare(out, board, row, col, position);
+                if (validMoves.contains(new ChessMove(position, new ChessPosition(row, col), null))) {
+                    drawHighlightSquare(out, board, row, col, position);
+                } else {
+                    drawSquare(out, board, row, col);
+                }
             }
         } else {
             for (int col = ChessBoard.BOARD_SIZE; col >= 1; col--) {
-                drawHighlightSquare(out, board, row, col, position);
+                if (validMoves.contains(new ChessMove(position, new ChessPosition(row, col), null))) {
+                    drawHighlightSquare(out, board, row, col, position);
+                } else {
+                    drawSquare(out, board, row, col);
+                }
             }
         }
         drawColHeader(out, row);
