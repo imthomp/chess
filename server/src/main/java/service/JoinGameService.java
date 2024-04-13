@@ -32,14 +32,14 @@ public class JoinGameService {
                 GameData newGameData = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
                 gameDAO.updateGame(newGameData);
             }
-            else if (Objects.equals(playerColor, "WHITE")) {
+            else if (Objects.equals(playerColor.toUpperCase(), "WHITE")) {
                 if (gameData.whiteUsername() != null) {
                     throw new DataAccessException("already taken");
                 }
                 GameData newGameData = new GameData(gameID, username, gameData.blackUsername(), gameData.gameName(), gameData.game());
                 gameDAO.updateGame(newGameData);
             }
-            else if (playerColor.equals("BLACK")) {
+            else if (Objects.equals(playerColor.toUpperCase(), "BLACK")) {
                 if (gameData.blackUsername() != null) {
                     throw new DataAccessException("already taken");
                 }
